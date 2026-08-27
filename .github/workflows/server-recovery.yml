@@ -117,9 +117,12 @@ jobs:
                     BANNED="$(fail2ban-client status "${JAIL}" 2>/dev/null | sed -n 's/.*Banned IP list:[[:space:]]*//p' | tr -d ' ')"
                     if [ -n "${BANNED}" ]; then
                       echo "🧹 Desbaneando en ${JAIL}: ${BANNED}"
-                      for IP in ${BANNED//,/ }; do
-                        fail2ban-client set "${JAIL}" unbanip "${IP}" 2>/dev/null || true
-                      done
+                    for IP in ${BANNED//,/ }; do
+                      fail2ban-client set "${JAIL}" unbanip "${IP}" 2>/dev/null || true
+                      if [ -f /etc/fail2ban/jail.local ] && ! grep -q "${IP}" /etc/fail2ban/jail.local; then
+                        sed -i "s/^ignoreip = /ignoreip = ${IP} /" /etc/fail2ban/jail.local 2>/dev/null || true
+                      fi
+                    done
                     fi
                     fail2ban-client unban --all 2>/dev/null || true
                   fi
