@@ -33,11 +33,12 @@ echo "==> Build de producción"
 npm run build
 
 echo "==> Iniciando PM2 (leonor-games)"
+pm2 delete leonor-games 2>/dev/null || true
 npm run prod
 
 sleep 3
 if pm2 status leonor-games > /dev/null 2>&1; then
-  echo "✅ leonor-games corriendo en puerto 3004"
+  echo "✅ leonor-games corriendo en puerto 30125"
   pm2 status leonor-games
 else
   echo "❌ PM2 no reporta leonor-games"
