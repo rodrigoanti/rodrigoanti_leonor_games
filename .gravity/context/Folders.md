@@ -17,6 +17,7 @@ components/
 deploy/
   deploy/nginx/
 lib/
+public/
 scripts/
 <!-- /iaterminal:auto -->
 

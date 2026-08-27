@@ -20,3 +20,4 @@
 - `2026-08-27T03:21:02.622Z` — [tech-lead-copy] [tech-lead-copy] [tl] Burbujas en /burbujas: flujo documentado, SoundId pop en audio y registro a 8 juegos.
 - `2026-08-27T03:22:03.755Z` — [qa] bubbles-game-flow corregido: timers de pop tienen bug de cleanup al desmontar tras reasignar el ref
 - `2026-08-27T03:22:39.911Z` — [tech-lead-copy] bubbles-game-flow: documentada la regla de cleanup de timers (leer el ref al desmontar) tras el fix del bug reportado por QA
+- `2026-08-27T03:30:11.647Z` — [fullstack] paint-ui-class-prefix: reglas de layout móvil para tools en dos filas y paleta con scroll

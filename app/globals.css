@@ -124,6 +124,15 @@ body {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+.paint-panel--tools {
+  flex-wrap: wrap;
+}
+
+.paint-panel--colors {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .paint-tool-grid {
   flex: 1;
   display: flex;
@@ -137,8 +146,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 0;
+  min-width: 56px;
   min-height: 56px;
   padding: 4px 2px;
   border: none;
@@ -216,12 +225,13 @@ body {
   gap: 10px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2px 0;
+  padding: 2px 4px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 .paint-color-palette::-webkit-scrollbar {
@@ -294,7 +304,34 @@ body {
   }
 }
 
+@media (max-width: 767px) {
+  .paint-panel--tools .paint-tool-grid {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .paint-panel--tools .paint-size-picker {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .paint-size-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 @media (min-width: 768px) {
+  .paint-panel--tools {
+    flex-wrap: nowrap;
+  }
+
+  .paint-color-palette {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
   .paint-color-btn {
     width: 52px;
     height: 52px;

@@ -3,13 +3,13 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** Pediste alinear con puzzle: CI solo build y PM2. Saqué apply-nginx del deploy; games.conf y el script siguen como referencia manual. Pusheado a develop con typecheck y build OK.
-**Request:** Quitar nginx del CI porque ya está configurado en el VPS.
-**Changes:**
-- .github/workflows/integration.yml: sin apply-nginx en deploy
-- .gravity/wiki/pages/production-deploy-flow.md: nginx manual como puzzle
+**Summary:** No hace falta descargar nada: los sonidos se generan en lib/audio.ts con Web Audio API, sin archivos binarios. Si no se oyen, suele ser mute guardado, falta de primer tap o volumen del dispositivo.
+**Request:** Saber si hay que descargar sonidos o si la app ya los trae.
 
 ## Log
+- `2026-08-27T03:33:19.975Z` — No hace falta descargar nada: los sonidos se generan en lib/audio.ts con Web Audio API, sin archivos binarios. Si no se oyen, suele ser mute guardado, falta de primer tap o volumen del dispositivo.
+- `2026-08-27T03:32:04.410Z` — Agregué PWA con manifest y service worker, y CSS global para evitar la selección azul al mantener presionado. Pusheé todo a develop; CI pasó y deployó. games.exampledev.xyz responde 200 con los 8 juegos y el manifest activo.
+- `2026-08-27T03:30:11.652Z` — En móvil las herramientas y tamaños compartían una fila y se superponían. Ahora van en dos filas con ancho mínimo seguro y la paleta hace scroll sin recortar colores. Lint, typecheck y build OK.
 - `2026-08-27T03:24:27.398Z` — Pediste alinear con puzzle: CI solo build y PM2. Saqué apply-nginx del deploy; games.conf y el script siguen como referencia manual. Pusheado a develop con typecheck y build OK.
 - `2026-08-27T03:22:51.749Z` — No tocamos integration.yml ni apply-nginx: el deploy de develop sigue con nginx para games. Solo borramos server-recovery.yml y start-sites.yml; start-sites.sh queda como script SSH manual.
 - `2026-08-27T03:21:35.959Z` — Puzzle y tasks ya responden (200 y 308 a login). vendechile.com sigue 502; el workflow anterior aún corre en GitHub. Borré Start Sites del repo; en tu Mac ejecuta el bloque SSH con start-sites.sh y pásame pm2 list si falla.
@@ -37,7 +37,6 @@
 - `2026-08-27T01:39:50.561Z` — Pediste el cuarto juego del hub en /numeros. Quedó jugable con 8 rondas de conteo, feedback táctil y victoria; el hub ya navega ahí. Pinta Leo, Memoria y Formas intactos; lint y build limpios.
 - `2026-08-27T01:35:43.580Z` — Pediste Formas como tercer juego en /formas. Quedó jugable con 8 rondas de identificación, feedback táctil y victoria; el hub ya navega ahí. Pinta Leo y Memoria intactos; lint y build limpios.
 - `2026-08-27T01:31:52.711Z` — Pediste Memoria jugable como segundo juego del hub. Quedó en /memoria con volteo, emparejamiento, fallo revertido y victoria; la tarjeta del hub navega ahí. Lint y build pasan; Pinta Leo no se modificó.
-- `2026-08-27T01:27:37.877Z` — Pediste un hub en / y pintura en /pintar sin tocar el juego. El hub muestra cuatro tarjetas (una activa); Pinta Leo vive en PaintGame con navegación de vuelta. Lint y build pasan.
 <!-- /iaterminal:auto -->
 
 <!-- iaterminal:notes -->

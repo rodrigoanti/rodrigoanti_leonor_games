@@ -5,4 +5,6 @@ Los estilos de Pinta Leo usan prefijo `.paint-*` en `app/globals.css` (migració
 
 Clases vivas: `paint-main`, `paint-canvas-card`, `paint-panel` (+ modificadores `--tools` / `--colors`), `paint-tool-grid`, `paint-tool-btn`, `paint-tool-label`, `paint-size-picker`, `paint-size-btn`, `paint-size-dot`, `paint-color-palette`, `paint-color-btn`, `paint-clear-btn`, `paint-banner`, `paint-banner-message`. Estados como sufijo de clase: `is-active`, `is-pending`, `is-pop`.
 
-Las clases viejas sin prefijo (`tool-btn`, `color-btn`, `size-btn`, `canvas-area`, `tools-bar`, `colors-bar`, `clear-btn`, `clear-banner`) fueron eliminadas y no quedan referencias. El banner de borrado mantiene `pointer-events: none` para que el segundo toque llegue al botón del header. See [[paint-game-controls-flow]] [[paint-canvas-sizing-constraint]] [[routes-and-games-registry]].
+Las clases viejas sin prefijo (`tool-btn`, `color-btn`, `size-btn`, `canvas-area`, `tools-bar`, `colors-bar`, `clear-btn`, `clear-banner`) fueron eliminadas y no quedan referencias. El banner de borrado mantiene `pointer-events: none` para que el segundo toque llegue al botón del header.
+
+Móvil (`max-width: 767px`): `paint-panel--tools` apila `paint-tool-grid` y `paint-size-picker` en dos filas (`flex-wrap` + `flex-basis: 100%`); `paint-tool-btn` lleva `min-width: 56px`. Paleta: `paint-panel--colors` con `overflow: hidden`, `paint-color-palette` con `justify-content: flex-start` y scroll horizontal. See [[paint-game-controls-flow]] [[paint-canvas-sizing-constraint]] [[routes-and-games-registry]].
