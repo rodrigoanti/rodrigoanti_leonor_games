@@ -191,9 +191,6 @@ jobs:
               exit 1
             fi
 
-            echo "🔧 Configurando nginx para games.exampledev.xyz"
-            bash scripts/apply-nginx.sh
-
       - name: Deploy success
         run: |
           echo "🎉 ========================================="
