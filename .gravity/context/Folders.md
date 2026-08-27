@@ -6,6 +6,7 @@ leonor_games/  (project root; paths are relative to this folder)
 
 app/
   app/burbujas/
+  app/cocina/
   app/estrellas/
   app/formas/
   app/luces/

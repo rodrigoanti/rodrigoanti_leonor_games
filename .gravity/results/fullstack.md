@@ -3,10 +3,14 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** No hace falta descargar nada: los sonidos se generan en lib/audio.ts con Web Audio API, sin archivos binarios. Si no se oyen, suele ser mute guardado, falta de primer tap o volumen del dispositivo.
-**Request:** Saber si hay que descargar sonidos o si la app ya los trae.
+**Summary:** Había cambios locales sin commitear del fix móvil de Pinta Leo. Los commiteé, pusheé a develop y el CI desplegó en games.exampledev.xyz con 200 en hub y /pintar.
+**Request:** Subir todo lo local a producción.
+**Changes:**
+- app/globals.css: fix layout móvil herramientas Pinta Leo
+- paint-ui-class-prefix.md: reglas layout móvil documentadas
 
 ## Log
+- `2026-08-27T03:38:05.299Z` — Había cambios locales sin commitear del fix móvil de Pinta Leo. Los commiteé, pusheé a develop y el CI desplegó en games.exampledev.xyz con 200 en hub y /pintar.
 - `2026-08-27T03:33:19.975Z` — No hace falta descargar nada: los sonidos se generan en lib/audio.ts con Web Audio API, sin archivos binarios. Si no se oyen, suele ser mute guardado, falta de primer tap o volumen del dispositivo.
 - `2026-08-27T03:32:04.410Z` — Agregué PWA con manifest y service worker, y CSS global para evitar la selección azul al mantener presionado. Pusheé todo a develop; CI pasó y deployó. games.exampledev.xyz responde 200 con los 8 juegos y el manifest activo.
 - `2026-08-27T03:30:11.652Z` — En móvil las herramientas y tamaños compartían una fila y se superponían. Ahora van en dos filas con ancho mínimo seguro y la paleta hace scroll sin recortar colores. Lint, typecheck y build OK.
@@ -36,7 +40,6 @@
 - `2026-08-27T01:53:58.941Z` — Pediste el mismo despliegue que base/stores pero en carpeta distinta. Quedó PM2 leonor-games en 3004, workflow en develop y scripts alineados; typecheck, lint y build pasan. En el servidor falta clonar en /home/rodrigoanti/dev/leonor_games y el primer npm run prod.
 - `2026-08-27T01:39:50.561Z` — Pediste el cuarto juego del hub en /numeros. Quedó jugable con 8 rondas de conteo, feedback táctil y victoria; el hub ya navega ahí. Pinta Leo, Memoria y Formas intactos; lint y build limpios.
 - `2026-08-27T01:35:43.580Z` — Pediste Formas como tercer juego en /formas. Quedó jugable con 8 rondas de identificación, feedback táctil y victoria; el hub ya navega ahí. Pinta Leo y Memoria intactos; lint y build limpios.
-- `2026-08-27T01:31:52.711Z` — Pediste Memoria jugable como segundo juego del hub. Quedó en /memoria con volteo, emparejamiento, fallo revertido y victoria; la tarjeta del hub navega ahí. Lint y build pasan; Pinta Leo no se modificó.
 <!-- /iaterminal:auto -->
 
 <!-- iaterminal:notes -->

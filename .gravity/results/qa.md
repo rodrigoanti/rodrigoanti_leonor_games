@@ -3,10 +3,15 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** Pediste QA sin modificar producción. Encontré un fallo reproducible en la limpieza de timers de pop al desmontar tras pops separados; lint/build pasan y /burbujas aparece como ruta estática.
-**Request:** Validar Burbujas en /burbujas y la regresión de los 7 juegos previos, reportando solo fallos reproducibles.
+**Summary:** Pediste QA de Cocina v3 y reporte solo de fallos reproducibles. No encontré fallos en los flujos obligatorios: drag exitoso/fallido, tap atajo, bloqueo de busy, 10 platos, gestos previos y limpieza visual pasaron. Solo queda un comentario CSS stale, no funcional.
+**Request:** Validar /cocina punta a punta con los 10 platos y el nuevo drag magnético, sin modificar producción.
 
 ## Log
+- `2026-08-27T18:37:15.430Z` — Pediste QA de Cocina v3 y reporte solo de fallos reproducibles. No encontré fallos en los flujos obligatorios: drag exitoso/fallido, tap atajo, bloqueo de busy, 10 platos, gestos previos y limpieza visual pasaron. Solo queda un comentario CSS stale, no funcional.
+- `2026-08-27T18:29:15.685Z` — Pediste QA de regresión, hidratación, CSS, menú táctil de Cocina y mute global. No encontré fallos reproducibles ni archivos de producción modificados; no quedó nada faltante o candidato claro para borrar.
+- `2026-08-27T17:12:35.350Z` — Pediste QA de comportamiento y warnings nuevos, no checks de build. Encontré warnings reproducibles de hidratación en Memoria, Formas y Números por aleatoriedad durante el render inicial; no modifiqué archivos.
+- `2026-08-27T03:50:49.805Z` — Pediste confirmar que los dos bugs QA anteriores ya no reproducen. No encontré fallos atribuibles a Cocina: Stir avanza por quiet timer o círculos, los timers se limpian al desmontar, el hub conserva 9 juegos y la regresión básica queda verde.
+- `2026-08-27T03:46:51.963Z` — Pediste QA de Cocina Leo más regresión completa. Encontré dos fallos reproducibles en Cocina: Stir no cumple el avance por 2s quieto y hay timers sin cleanup al desmontar. No modifiqué archivos; los checks y prod quedan operativos.
 - `2026-08-27T03:22:03.758Z` — Pediste QA sin modificar producción. Encontré un fallo reproducible en la limpieza de timers de pop al desmontar tras pops separados; lint/build pasan y /burbujas aparece como ruta estática.
 - `2026-08-27T03:17:47.957Z` — Revisé Luces contra los flujos obligatorios, hub, audio/mute, sorpresa de confeti y regresión de Estrellas, Pinta Leo, Memoria, Formas, Números y Teléfono. No encontré fallos reproducibles ni modifiqué archivos.
 - `2026-08-27T03:15:02.036Z` — Revisé Estrellas contra los 9 flujos obligatorios y la regresión de hub, audio/mute y juegos existentes. No encontré fallos reproducibles; no modifiqué código de producción.

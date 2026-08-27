@@ -22,3 +22,13 @@
 - `2026-08-27T03:22:39.911Z` — [tech-lead-copy] bubbles-game-flow: documentada la regla de cleanup de timers (leer el ref al desmontar) tras el fix del bug reportado por QA
 - `2026-08-27T03:30:11.647Z` — [fullstack] paint-ui-class-prefix: reglas de layout móvil para tools en dos filas y paleta con scroll
 - `2026-08-27T03:37:17.502Z` — [product-designer] Brief de producto para juego Cocina: flujo, gestos, platos MVP y restricciones UX.
+- `2026-08-27T03:45:46.939Z` — [tl] kitchen-game-flow: flujo MVP ensalada/sándwich y locate archivos tras implementación
+- `2026-08-27T03:46:51.960Z` — [qa] kitchen-game-flow registra bugs QA reproducibles de Stir y cleanup de timers
+- `2026-08-27T03:48:26.641Z` — [tl] kitchen-game-flow: stir quiet timer y uiTimersRef cleanup tras fix QA bugs
+- `2026-08-27T16:16:04.655Z` — [product-designer] Kitchen UX v2: tap-to-place, escena única, sin zonas punteadas ni íconos chicos.
+- `2026-08-27T16:24:46.206Z` — [tech-lead-copy] kitchen-game-flow: v2 tap-place con scene por paso, fly animation y sin drag/zonas
+- `2026-08-27T17:01:53.929Z` — [tech-lead-copy] Next 15.5.9 + React 18.3.1 en prod: engine node 18.18+, target ES2017 y deuda de next lint antes de Next 16
+- `2026-08-27T17:12:35.348Z` — [qa] QA registró hydration mismatches reproducibles tras Next 15 en juegos con aleatoriedad inicial.
+- `2026-08-27T17:19:19.212Z` — [tech-lead-copy] next15-hydration-runtime-bugs pasa de inventario de bugs a regla: sin Math.random en render, factories deterministas ya aplicadas y bug corregido en 994ca18
+- `2026-08-27T18:25:10.223Z` — [tech-lead-copy] Cocina v3: gesto drag-place magnético (20% + 24px, sin zona visible), tap como atajo y modelo de paso genérico sceneEmoji/stack/addsToScene con 10 platos
+- `2026-08-27T18:37:43.960Z` — [tech-lead-copy] QA v3 sin hallazgos; solo comentario CSS corregido, nada durable nuevo

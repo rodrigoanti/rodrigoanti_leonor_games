@@ -3,10 +3,16 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** Pediste tres juegos causa-efecto sin puntaje ni fallo. Quedaron Estrellas, Luces y Burbujas en el hub con audio y validación QA; se corrigió el cleanup de timers en Burbujas.
-**Request:** Implementar con TL Turbo los juegos sensoriales Estrellas, Luces y Burbujas para menores de 3 años.
+**Summary:** Pediste drag magnético y 10 platos. Quedó v3 con snap generoso, tap como atajo, ocho recetas nuevas y los diez platos validados en prod.
+**Request:** Mejorar gestos de Cocina con drag además de taps y ampliar el menú a 10 platos en total.
 
 ## Log
+- `2026-08-27T18:38:06.051Z` — Pediste drag magnético y 10 platos. Quedó v3 con snap generoso, tap como atajo, ocho recetas nuevas y los diez platos validados en prod.
+- `2026-08-27T18:18:35.119Z` — Pediste drag magnético en Cocina y 10 platos jugables. Delegué a TL Turbo: gesto drag-place con snap generoso, tap como atajo, 8 platos nuevos y deploy a prod.
+- `2026-08-27T16:25:08.660Z` — El v1 se sentía web con drag y zonas punteadas. Quedó v2 con tap-to-place, un ingrediente grande por paso, mesa de madera y sin bordes punteados, ya en prod en games.exampledev.xyz/cocina.
+- `2026-08-27T16:17:37.420Z` — El v1 se sentía web con drag y zonas punteadas. Delegué a TL Turbo el rediseño v2 según el brief actualizado: tap, un foco por paso, mesa real y deploy a prod.
+- `2026-08-27T03:46:04.843Z` — Pediste Cocina Leo con gestos guiados y deploy a prod. Quedó jugable en /cocina con ensalada y sándwich, y el CI desplegó en games.exampledev.xyz con el noveno juego en el hub.
+- `2026-08-27T03:38:45.863Z` — Pediste el juego Cocina Leo con gestos guiados y deploy a prod al cerrar. Delegué al Tech Lead un slice único: MVP en /cocina, QA y push a develop con verificación en games.exampledev.xyz.
 - `2026-08-27T03:22:58.847Z` — Pediste tres juegos causa-efecto sin puntaje ni fallo. Quedaron Estrellas, Luces y Burbujas en el hub con audio y validación QA; se corrigió el cleanup de timers en Burbujas.
 - `2026-08-27T03:18:20.721Z` — Estrellas y Luces ya están en el hub. Delegué a TL Turbo el slice 3 final: Burbujas en /burbujas con máximo 4 burbujas flotantes, pop visual y sonido al tocar.
 - `2026-08-27T03:14:25.643Z` — Estrellas ya está en /estrellas con tap, sparkle y reset a 15. Delegué a TL Turbo el slice 2: Luces en /luces con interruptores, escena nocturna y sonidos switchOn/switchOff.

@@ -1590,7 +1590,7 @@ body {
   }
 }
 
-/* Cocina Leo v2: escena de mesa, tap-place y objetos grandes. Sin punteados ni drag. */
+/* Cocina Leo v3: escena de mesa, drag magnetico con tap como atajo y objetos grandes. Sin punteados. */
 .kitchen-main {
   flex: 1;
   min-height: 0;

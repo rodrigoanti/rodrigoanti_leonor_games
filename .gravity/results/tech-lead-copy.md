@@ -3,12 +3,17 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** Vanesa reportó que los timers de pop creados tras una reasignación del ref no se cancelaban al volver al hub, dejando un setPops después de unmount. Cambié el cleanup para leer el ref en el momento de desmontar; lint, typecheck y build pasan con /burbujas estática. Con esto quedan los 8 juegos y el brief causa-efecto completo.
-**Request:** Integrar el hallazgo de QA sobre Burbujas y cerrar el slice
+**Summary:** Las dos lineas de QA volvieron sin fallos reproducibles: 10 platos completables, drag y tap OK, busy bloquea, y el hub sigue con 9 juegos sin hydration warnings. Lo unico real era un comentario CSS que aun describia el v2 sin drag; lo actualice. No toque estilos ni logica.
+**Request:** Cerrar el QA de Cocina v3 y la regresion general del hub
 **Changes:**
-- components/BubblesGame.tsx: el cleanup ahora recorre popTimersRef.current al desmontar en lugar del array capturado al montar
+- app/globals.css: comentario del bloque Cocina pasa de 'v2 sin drag' a 'v3 drag magnetico + tap'
 
 ## Log
+- `2026-08-27T18:37:43.962Z` — Las dos lineas de QA volvieron sin fallos reproducibles: 10 platos completables, drag y tap OK, busy bloquea, y el hub sigue con 9 juegos sin hydration warnings. Lo unico real era un comentario CSS que aun describia el v2 sin drag; lo actualice. No toque estilos ni logica.
+- `2026-08-27T18:25:10.227Z` — Pediste drag magnético además de tap y 10 platos jugables. Para que 10 recetas no significaran 10 ramas de render, cambié el modelo de paso a algo genérico: el paso declara su objeto central y si el ingrediente queda dentro, así que agregar un plato es solo editar DISHES. El drag hace snap con zona invisible del 20% y soltar lejos devuelve el ingrediente sin castigo; el tap sigue funcionando
+- `2026-08-27T17:19:19.214Z` — Vanesa reportó hydration mismatch en tres juegos. No los causó Next 15: las rutas son estáticas y el Math.random quedaba horneado en el build, así que el bug ya existía con Next 14. El primer render ahora es determinista y el azar entra tras montar. Comparé dos builds limpios y el HTML solo difiere en el build ID. Commit 994ca18 en prod.
+- `2026-08-27T17:01:53.931Z` — Pediste subir a Next 15.5.9 y desplegar. El salto salió sin tocar código de app: no había uso de cookies, headers, params ni searchParams, así que solo cambiaron las deps y el target de TS. Dejé React en 18.3.1 porque es peer válido y evita migrar a React 19 en el mismo deploy. Commit 16c626f en develop, CI verde y prod sirviendo los chunks del build nuevo. Queda pendiente migrar
+- `2026-08-27T16:24:46.207Z` — El v1 se sentía web con drag preciso y zonas punteadas. Ahora cada paso muestra solo mesa, objeto central grande y un ingrediente que vuela al tocarlo; ensalada y sándwich siguen jugables y el audio quedó igual. Está en develop y prod responde 200 en /cocina; Vanesa todavía corre la regresión.
 - `2026-08-27T03:22:39.912Z` — Vanesa reportó que los timers de pop creados tras una reasignación del ref no se cancelaban al volver al hub, dejando un setPops después de unmount. Cambié el cleanup para leer el ref en el momento de desmontar; lint, typecheck y build pasan con /burbujas estática. Con esto quedan los 8 juegos y el brief causa-efecto completo.
 - `2026-08-27T03:21:02.624Z` — Pediste el último sensorial del brief. Quedó pantalla única con máximo 4 burbujas flotando en CSS: al tocar suena pop, estalla con partículas y otra aparece lejos, sin puntaje ni fallo. No había lane de dev en este pane, así que lo implementé yo; lint, typecheck y build pasan con /burbujas estática y Vanesa está validando 9 flujos más la regresión de los 7 juegos.
 - `2026-08-27T03:17:57.230Z` — Pediste validar Luces antes de cerrar. Vanesa cubrió los 8 flujos obligatorios y la regresión de los seis juegos previos sin encontrar fallos reproducibles; lint y build quedan limpios con /luces estática. No hubo cambios de archivos en este turno y queda pendiente Burbujas como tercer slice causa-efecto.
