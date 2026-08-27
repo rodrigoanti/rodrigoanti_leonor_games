@@ -128,11 +128,8 @@ jobs:
 
               echo "🔧 Asegurando Port 22222 en sshd"
               mkdir -p /etc/ssh/sshd_config.d
-              cat > /etc/ssh/sshd_config.d/99-leonor-port.conf <<'SSHD'
-Port 22222
-ListenAddress 0.0.0.0
-ListenAddress ::
-SSHD
+              printf '%s\n' 'Port 22222' 'ListenAddress 0.0.0.0' 'ListenAddress ::' \
+                > /etc/ssh/sshd_config.d/99-leonor-port.conf
               sshd -t
               systemctl restart "${UNIT}"
               sleep 2
