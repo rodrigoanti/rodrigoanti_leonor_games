@@ -63,4 +63,11 @@ export const GAMES: Game[] = [
     href: "/burbujas",
     available: true,
   },
+  {
+    id: "cocina",
+    title: "Cocina Leo",
+    emoji: "🍳",
+    href: "/cocina",
+    available: true,
+  },
 ];

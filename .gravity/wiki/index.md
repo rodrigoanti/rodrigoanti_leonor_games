@@ -6,6 +6,8 @@
   /burbujas → app/burbujas/page.tsx → [[components/BubblesGame.tsx]]. Config y factory en [[lib/bubbles.ts]]: MAX_BUBBLES 
 - [[cause-effect-games-brief]] — Cause-effect games brief (concept) → links: routes-and-games-registry, audio-system, shapes-game-flow, numbers-game-flow, memory-game-flow
   Tres juegos sensoriales propuestos para <3 años: sin puntaje, sin tiempo, sin fallo. Patrón UI como [[routes-and-games-r
+- [[kitchen-game-brief]] — Kitchen game brief (concept) → links: cause-effect-games-brief, app-globals.css, audio-system, phone-game-flow, routes-and-games-registry, shapes-game-flow
+  Juego de rol + secuencia para ~2–4 años: más exigente que [[cause-effect-games-brief]] pero sin puntaje ni tiempo. Ruta 
 - [[lights-game-flow]] — Lights game flow (flow) → links: components-lightsgame.tsx, lib-lights.ts, app-globals.css, lib-audio.ts, audio-system, cause-effect-games-brief, stars-game-flow, lib-games.ts, routes-and-games-registry
   `/luces` → `app/luces/page.tsx` → [[components/LightsGame.tsx]]. Config de switches en [[lib/lights.ts]]: `LIGHT_SWITCHE
 - [[memory-game-flow]] — Memoria game flow (flow) → links: components-memorygame.tsx, lib-memory.ts, lib-games.ts, routes-and-games-registry

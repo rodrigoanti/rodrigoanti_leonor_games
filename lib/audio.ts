@@ -12,7 +12,11 @@ export type SoundId =
   | "sparkle"
   | "switchOn"
   | "switchOff"
-  | "pop";
+  | "pop"
+  | "drop"
+  | "stir"
+  | "chop"
+  | "sprinkle";
 
 export const MUTE_STORAGE_KEY = "leonor-sound-muted";
 
@@ -198,6 +202,27 @@ function synthesize(id: SoundId): void {
         { frequency: 1245, duration: 0.045 },
         { frequency: 831, duration: 0.09, delay: 0.04 },
       ], "sine");
+      break;
+    case "drop":
+      playSequence([
+        { frequency: 392, duration: 0.06 },
+        { frequency: 523, duration: 0.08, delay: 0.05 },
+      ], "triangle");
+      break;
+    case "stir":
+      playTone(440, 0.05, "sine", 0.14);
+      break;
+    case "chop":
+      playSequence([
+        { frequency: 280, duration: 0.04 },
+        { frequency: 180, duration: 0.06, delay: 0.03 },
+      ], "square");
+      break;
+    case "sprinkle":
+      playSequence([
+        { frequency: 988, duration: 0.04 },
+        { frequency: 1318, duration: 0.05, delay: 0.04 },
+      ], "triangle");
       break;
   }
 }

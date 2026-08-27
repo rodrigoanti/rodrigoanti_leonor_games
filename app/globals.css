@@ -1589,3 +1589,417 @@ body {
     transform: rotate(var(--angle, 0deg)) translate(46px, 0) scale(0.35);
   }
 }
+
+.kitchen-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  padding-left: calc(16px + var(--safe-left));
+  padding-right: calc(16px + var(--safe-right));
+  padding-bottom: calc(16px + var(--safe-bottom));
+  gap: 16px;
+  background: linear-gradient(180deg, #fff8e6 0%, #fff2f0 100%);
+}
+
+.kitchen-prompt {
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text);
+  margin: 0;
+}
+
+.kitchen-menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  flex: 1;
+  align-content: center;
+}
+
+.kitchen-dish-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 140px;
+  padding: 20px 16px;
+  border: 3px solid #ffd8a8;
+  border-radius: 24px;
+  background: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255, 150, 80, 0.15);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.kitchen-dish-card:active {
+  transform: scale(0.97);
+}
+
+.kitchen-dish-emoji {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.kitchen-dish-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.kitchen-cooking {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kitchen-steps {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.kitchen-step-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e9ecef;
+  font-size: 16px;
+  opacity: 0.45;
+  transition: background 200ms ease, opacity 200ms ease, transform 200ms ease;
+}
+
+.kitchen-step-dot--done {
+  background: #b2f2bb;
+  opacity: 0.7;
+}
+
+.kitchen-step-dot--active {
+  background: #ffd8a8;
+  opacity: 1;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.45);
+}
+
+.kitchen-action-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.kitchen-action-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.kitchen-action-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.kitchen-workspace {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kitchen-zone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 3px dashed #dee2e6;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.75);
+  transition: border-color 200ms ease, background 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.kitchen-zone--highlight {
+  border-color: var(--color-active-ring);
+  background: #fff9db;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
+}
+
+.kitchen-zone--bowl {
+  touch-action: none;
+}
+
+.kitchen-bowl-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100px;
+}
+
+.kitchen-bowl-emoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.kitchen-bowl-items {
+  display: flex;
+  gap: 4px;
+  font-size: 28px;
+  margin-top: 4px;
+}
+
+.kitchen-stir-hint {
+  position: absolute;
+  font-size: 32px;
+  animation: kitchen-stir-spin 1.2s linear infinite;
+}
+
+@keyframes kitchen-stir-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.kitchen-plate-emoji {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.kitchen-shaker {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 32px;
+}
+
+.kitchen-sprinkle-particle {
+  position: absolute;
+  font-size: 18px;
+  pointer-events: none;
+  animation: kitchen-sprinkle-pop 700ms ease-out forwards;
+}
+
+@keyframes kitchen-sprinkle-pop {
+  0% {
+    opacity: 1;
+    transform: scale(0.5) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2) translateY(-24px);
+  }
+}
+
+.kitchen-bread-emoji {
+  font-size: 64px;
+  line-height: 1;
+  transition: transform 300ms ease;
+}
+
+.kitchen-bread-emoji--cut {
+  transform: scale(0.92);
+}
+
+.kitchen-cut-line {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: rgba(80, 50, 20, 0.5);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.kitchen-sandwich-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 36px;
+  line-height: 1;
+}
+
+.kitchen-tap-hint {
+  animation: kitchen-tap-bounce 800ms ease-in-out infinite alternate;
+}
+
+@keyframes kitchen-tap-bounce {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+.kitchen-ingredient {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 72px;
+  padding: 8px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  font-size: 44px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 400ms ease;
+  z-index: 2;
+}
+
+.kitchen-ingredient:active {
+  cursor: grabbing;
+}
+
+.kitchen-ingredient--return {
+  animation: kitchen-ingredient-return 400ms ease;
+}
+
+@keyframes kitchen-ingredient-return {
+  0% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.kitchen-ingredient--lettuce {
+  bottom: 12%;
+  left: 8%;
+}
+
+.kitchen-ingredient--tomato {
+  bottom: 12%;
+  right: 8%;
+}
+
+.kitchen-ingredient--salad {
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.kitchen-ingredient--ham {
+  bottom: 8%;
+  left: 8%;
+}
+
+.kitchen-ingredient--cheese {
+  bottom: 8%;
+  right: 8%;
+}
+
+.kitchen-drag-ghost {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 100;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.kitchen-done {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.kitchen-done-emoji {
+  font-size: 72px;
+  line-height: 1;
+  animation: kitchen-done-bounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes kitchen-done-bounce {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.kitchen-done-title {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text);
+}
+
+.kitchen-done-sub {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.kitchen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  width: 100%;
+  max-width: 280px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.kitchen-btn:active {
+  transform: scale(0.97);
+}
+
+.kitchen-btn--primary {
+  background: var(--color-active-ring);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 150, 80, 0.35);
+}
+
+.kitchen-btn--secondary {
+  background: #fff;
+  color: var(--text);
+  border: 2px solid #dee2e6;
+}
