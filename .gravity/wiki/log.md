@@ -1,0 +1,11 @@
+# Wiki log
+- `2026-08-27T01:26:35.136Z` — [tl] Documenté rutas / y /pintar y el registro lib/games.ts tras inspección pre-delegación.
+- `2026-08-27T01:29:10.474Z` — [qa] Documenté flujo de controles y borrado doble de Pinta Leo.
+- `2026-08-27T01:31:52.707Z` — [frontend] [frontend] Documenté Memoria en /memoria: MemoryGame, lib/memory.ts y flujo de juego.
+- `2026-08-27T01:35:43.577Z` — [frontend] Documenté flujo de Formas en /formas: ShapesGame, lib/shapes.ts y reglas de ronda.
+- `2026-08-27T01:36:18.268Z` — [tl] [tl] Actualicé registro de rutas con Formas en /formas tras inspección post-frontend.
+- `2026-08-27T01:39:50.559Z` — [frontend] Documenté flujo Números en /numeros y actualicé registro de rutas con cuatro juegos activos.
+- `2026-08-27T01:46:22.595Z` — [tech-lead-copy] [tl] Documenté la restricción de medida del canvas y la decisión de prefijo .paint-* antes del rediseño visual.
+- `2026-08-27T01:49:32.003Z` — [tech-lead-copy] [tl] Actualicé el prefijo .paint-* de decisión pendiente a estado aplicado, con el inventario real de clases.
+- `2026-08-27T01:52:08.719Z` — [tech-lead-copy] [tl] Documenté el flujo de Teléfono en /telefono y sumé el quinto juego al registro de rutas.
+- `2026-08-27T01:53:58.939Z` — [fullstack] Documenté flujo de deploy: develop → CI → SSH → PM2 leonor-games en 3004.

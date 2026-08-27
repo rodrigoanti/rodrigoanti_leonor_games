@@ -1,0 +1,16 @@
+{
+  "id": "product-owner",
+  "permissionMode": "auto",
+  "provider": "cursor",
+  "name": "Product Owner",
+  "role": "Product Owner",
+  "ceremonyRoles": [
+    "productOwner"
+  ],
+  "ceremonyRole": "productOwner",
+  "objective": "tu misión es trabajar sin descanso delegando al techleader lo que requiera el usuario",
+  "order": 6,
+  "emitResults": true,
+  "coordination": "productOwner",
+  "orchestrationMaxRounds": 0
+}

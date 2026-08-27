@@ -1,0 +1,192 @@
+name: CI - Verification
+
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+  lint:
+    runs-on: ubuntu-22.04
+    needs: install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-22.04
+    needs: install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build application
+        run: npm run build
+
+  deploy:
+    needs: [install, lint, build]
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push'
+    steps:
+      - name: Validate SSH secrets
+        run: |
+          echo "🔍 Validando configuración SSH..."
+
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "❌ Error: SSH_HOST no está configurado"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then
+            echo "❌ Error: SSH_USERNAME no está configurado"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "❌ Error: SSH_PRIVATE_KEY no está configurado"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.SSH_PASSPHRASE }}" ]; then
+            echo "❌ Error: SSH_PASSPHRASE no está configurado"
+            exit 1
+          fi
+
+          echo "✅ Todos los secrets SSH están configurados"
+          echo "🌐 Host: ${{ secrets.SSH_HOST }}"
+          echo "👤 Usuario: ${{ secrets.SSH_USERNAME }}"
+          echo "🔑 Clave SSH: [CONFIGURADA]"
+          echo "🔐 Passphrase: [CONFIGURADA]"
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22222
+          timeout: 1800s
+          command_timeout: 1800s
+          script: |
+            set -euo pipefail
+            echo "🚀 Iniciando deploy..."
+
+            echo "🔧 Configurando Node.js..."
+            export NVM_DIR="$HOME/.nvm"
+            export PATH="$NVM_DIR/versions/node/v18.20.7/bin:$PATH"
+            echo "✅ Node.js configurado"
+
+            cd /home/rodrigoanti/dev/leonor_games
+
+            git config --global url."https://${{ github.actor }}:${{ secrets.GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+            PREVIOUS_HEAD=$(git rev-parse HEAD)
+
+            echo "📥 Sincronizando con origin/develop..."
+            git fetch origin develop
+            git reset --hard origin/develop
+            echo "✅ Código actualizado a $(git rev-parse --short HEAD)"
+
+            NEEDS_INSTALL=false
+            if [ ! -d "node_modules" ]; then
+              echo "📦 node_modules no existe"
+              NEEDS_INSTALL=true
+            elif ! git diff --quiet "${PREVIOUS_HEAD}" HEAD -- package-lock.json package.json 2>/dev/null; then
+              echo "📦 package.json o package-lock.json cambiaron en este deploy"
+              NEEDS_INSTALL=true
+            fi
+
+            if [ "${NEEDS_INSTALL}" = true ]; then
+              echo "📦 Instalando dependencias..."
+              npm ci --no-audit --no-fund --no-update-notifier
+            else
+              echo "✅ Sin cambios en dependencias, omitiendo npm install"
+            fi
+
+            npm run build
+
+            npm run prod
+            sleep 3
+
+            if pm2 status leonor-games > /dev/null 2>&1; then
+              echo "✅ Deploy exitoso - Servicio corriendo"
+            else
+              echo "❌ Deploy falló - Servicio no disponible"
+              exit 1
+            fi
+
+      - name: Deploy success
+        run: |
+          echo "🎉 ========================================="
+          echo "🎉 DEPLOY COMPLETADO EXITOSAMENTE"
+          echo "🎉 ========================================="
+          echo "📅 Fecha: $(date)"
+          echo "🌿 Rama: develop"
+          echo "🔗 Servidor: ${{ secrets.SSH_HOST }}"
+          echo "📊 Servicio: leonor-games"
+          echo "🎉 ========================================="

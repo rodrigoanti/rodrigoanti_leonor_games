@@ -1,0 +1,18 @@
+{
+  "id": "fullstack",
+  "permissionMode": "auto",
+  "provider": "cursor",
+  "name": "David",
+  "monogram": "FS",
+  "role": "fullstack engineer",
+  "objective": "develop with best practices and scallable",
+  "rules": [
+    "entrega resultados con type check y run build"
+  ],
+  "contextIds": [
+    "iaterminal:result:qa",
+    "iaterminal:folderTree:Folders"
+  ],
+  "order": 2,
+  "emitResults": true
+}
