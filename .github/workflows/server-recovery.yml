@@ -114,9 +114,14 @@ jobs:
                 fail2ban-client status sshd 2>/dev/null || fail2ban-client status ssh 2>/dev/null || true
                 for JAIL in sshd ssh; do
                   if fail2ban-client status "${JAIL}" >/dev/null 2>&1; then
-                    echo "🧹 fail2ban unban --all en ${JAIL}"
-                    fail2ban-client set "${JAIL}" unbanip --all 2>/dev/null || \
-                      fail2ban-client unban --all 2>/dev/null || true
+                    BANNED="$(fail2ban-client status "${JAIL}" 2>/dev/null | sed -n 's/.*Banned IP list:[[:space:]]*//p' | tr -d ' ')"
+                    if [ -n "${BANNED}" ]; then
+                      echo "🧹 Desbaneando en ${JAIL}: ${BANNED}"
+                      for IP in ${BANNED//,/ }; do
+                        fail2ban-client set "${JAIL}" unbanip "${IP}" 2>/dev/null || true
+                      done
+                    fi
+                    fail2ban-client unban --all 2>/dev/null || true
                   fi
                 done
               fi
@@ -131,7 +136,9 @@ jobs:
               printf '%s\n' 'Port 22222' 'ListenAddress 0.0.0.0' 'ListenAddress ::' \
                 > /etc/ssh/sshd_config.d/99-leonor-port.conf
               sshd -t
-              systemctl restart "${UNIT}"
+              systemctl stop "${UNIT}"
+              sleep 2
+              systemctl start "${UNIT}"
               sleep 2
 
               echo "🔧 UFW: permitir 22222"
