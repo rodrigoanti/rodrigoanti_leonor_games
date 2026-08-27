@@ -1,0 +1,180 @@
+name: Server Recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Acción en el VPS
+        required: true
+        default: diagnose-and-fix
+        type: choice
+        options:
+          - diagnose-and-fix
+          - restart-ssh
+          - ssh-status
+          - restart-app
+          - apply-nginx
+
+jobs:
+  recovery:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run recovery action via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: 22222
+          timeout: 300s
+          command_timeout: 300s
+          script: |
+            set -uo pipefail
+
+            export NVM_DIR="$HOME/.nvm"
+            export PATH="$NVM_DIR/versions/node/v18.20.7/bin:$PATH"
+            DEPLOY_DIR="/home/rodrigoanti/dev/leonor_games"
+            ACTION="${{ github.event.inputs.action }}"
+
+            ssh_unit() {
+              if systemctl list-unit-files ssh.service --no-legend 2>/dev/null | grep -q ssh.service; then
+                echo ssh
+              else
+                echo sshd
+              fi
+            }
+
+            restart_ssh() {
+              UNIT="$(ssh_unit)"
+              echo "🔄 Reiniciando ${UNIT}..."
+              systemctl restart "${UNIT}"
+              sleep 2
+              systemctl status "${UNIT}" --no-pager || true
+              ss -tlnp | grep 22222 || echo "⚠️ 22222 no aparece en ss"
+            }
+
+            ssh_status() {
+              UNIT="$(ssh_unit)"
+              echo "📋 Estado ${UNIT}"
+              systemctl status "${UNIT}" --no-pager || true
+              echo "--- puertos ssh ---"
+              ss -tlnp | grep -E '22222|ssh' || true
+              echo "--- ufw 22222 ---"
+              ufw status 2>/dev/null | grep 22222 || true
+            }
+
+            restart_app() {
+              if [ ! -d "${DEPLOY_DIR}" ]; then
+                echo "❌ No existe ${DEPLOY_DIR}"
+                exit 1
+              fi
+              cd "${DEPLOY_DIR}"
+              echo "🔄 Reiniciando leonor-games..."
+              pm2 delete leonor-games 2>/dev/null || true
+              npm run prod
+              sleep 3
+              pm2 status leonor-games
+              curl -sI http://127.0.0.1:30125 | head -8 || true
+            }
+
+            apply_nginx() {
+              if [ ! -d "${DEPLOY_DIR}" ]; then
+                echo "❌ No existe ${DEPLOY_DIR}"
+                exit 1
+              fi
+              cd "${DEPLOY_DIR}"
+              echo "🔧 Aplicando nginx games.exampledev.xyz"
+              bash scripts/apply-nginx.sh
+              nginx -t
+              systemctl reload nginx
+              curl -sIk https://games.exampledev.xyz | head -8 || true
+            }
+
+            diagnose_and_fix() {
+              echo "========================================"
+              echo "🔍 DIAGNÓSTICO Y CORRECCIÓN AUTOMÁTICA"
+              echo "========================================"
+              echo "📅 $(date)"
+              echo "🖥️  $(hostname) — uptime: $(uptime -p 2>/dev/null || uptime)"
+
+              echo ""
+              echo "--- 1/5 SSH ---"
+              UNIT="$(ssh_unit)"
+              if ! systemctl is-active --quiet "${UNIT}"; then
+                echo "⚠️ ${UNIT} no activo — reiniciando"
+                restart_ssh
+              else
+                echo "✅ ${UNIT} activo"
+              fi
+              if ! ss -tlnp | grep -q ':22222'; then
+                echo "⚠️ nada escucha en 22222 — reiniciando ssh"
+                restart_ssh
+              else
+                echo "✅ puerto 22222 en escucha"
+                ss -tlnp | grep 22222
+              fi
+              ufw status 2>/dev/null | grep 22222 || echo "ℹ️ revisar ufw manualmente si ssh falla desde fuera"
+
+              echo ""
+              echo "--- 2/5 servicios sospechosos (solo reporte) ---"
+              systemctl list-units --failed --no-pager 2>/dev/null | head -20 || true
+              for SVC in alive lived system-update-service; do
+                if systemctl list-unit-files "${SVC}.service" --no-legend 2>/dev/null | grep -q "${SVC}"; then
+                  echo "⚠️ encontrado ${SVC}.service — revisar si es legítimo"
+                  systemctl status "${SVC}.service" --no-pager 2>/dev/null | head -5 || true
+                fi
+              done
+
+              echo ""
+              echo "--- 3/5 PM2 leonor-games ---"
+              if pm2 jlist 2>/dev/null | grep -q '"name":"leonor-games".*"status":"online"'; then
+                echo "✅ leonor-games online"
+                pm2 status leonor-games
+              else
+                echo "⚠️ leonor-games no online — arrancando"
+                restart_app
+              fi
+              curl -sI http://127.0.0.1:30125 | head -8 || echo "❌ sin respuesta en 30125"
+
+              echo ""
+              echo "--- 4/5 nginx games.exampledev.xyz ---"
+              if [ -d "${DEPLOY_DIR}" ]; then
+                apply_nginx
+              else
+                echo "❌ ${DEPLOY_DIR} no existe — omitiendo nginx"
+              fi
+
+              echo ""
+              echo "--- 5/5 resumen ---"
+              ssh_status
+              pm2 status leonor-games 2>/dev/null || true
+              echo "========================================"
+              echo "✅ Diagnóstico completado"
+              echo "========================================"
+            }
+
+            case "${ACTION}" in
+              diagnose-and-fix)
+                diagnose_and_fix
+                ;;
+              restart-ssh)
+                restart_ssh
+                ;;
+              ssh-status)
+                ssh_status
+                ;;
+              restart-app)
+                restart_app
+                ;;
+              apply-nginx)
+                apply_nginx
+                ;;
+              *)
+                echo "Acción no reconocida: ${ACTION}"
+                exit 1
+                ;;
+            esac
