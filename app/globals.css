@@ -1626,10 +1626,14 @@ body {
 
 .kitchen-menu {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
   flex: 1;
-  align-content: center;
+  min-height: 0;
+  align-content: start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 2px 8px;
 }
 
 .kitchen-dish-card {
@@ -1637,9 +1641,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 180px;
-  padding: 16px;
+  gap: 8px;
+  min-height: 140px;
+  padding: 12px;
   border: none;
   border-radius: 28px;
   background: #fffdf7;
@@ -1654,7 +1658,7 @@ body {
 }
 
 .kitchen-dish-emoji {
-  font-size: 84px;
+  font-size: 64px;
   line-height: 1;
 }
 
@@ -1706,16 +1710,6 @@ body {
   justify-content: center;
 }
 
-.kitchen-scene-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  height: 100%;
-}
-
 .kitchen-object {
   position: relative;
   flex: 1;
@@ -1733,8 +1727,20 @@ body {
 }
 
 .kitchen-object--stir,
-.kitchen-object--bread {
+.kitchen-object--cut {
   touch-action: none;
+}
+
+/* Zona magnetica activa: el objeto central crece y brilla. Sin bordes punteados. */
+.kitchen-object--magnet .kitchen-object-inner {
+  transform: scale(1.08);
+  transition: transform 140ms ease;
+}
+
+.kitchen-object--magnet .kitchen-object-emoji,
+.kitchen-object--magnet .kitchen-stack {
+  filter: drop-shadow(0 0 22px rgba(255, 181, 69, 0.95))
+    drop-shadow(0 10px 14px rgba(90, 52, 16, 0.35));
 }
 
 .kitchen-object-inner {
@@ -1757,8 +1763,7 @@ body {
   transition: transform 300ms ease;
 }
 
-.kitchen-object--bowl .kitchen-object-inner,
-.kitchen-object--plate .kitchen-object-inner {
+.kitchen-object:not(.kitchen-object--magnet) .kitchen-object-inner {
   animation: kitchen-object-idle 2.4s ease-in-out infinite alternate;
 }
 
@@ -1771,7 +1776,7 @@ body {
   }
 }
 
-.kitchen-bowl-items {
+.kitchen-placed-items {
   position: absolute;
   top: 34%;
   display: flex;
@@ -1781,7 +1786,7 @@ body {
   pointer-events: none;
 }
 
-.kitchen-sandwich-stack {
+.kitchen-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1910,12 +1915,21 @@ body {
   background: #fffdf7;
   box-shadow: 0 8px 18px rgba(90, 52, 16, 0.3);
   font-family: inherit;
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
   animation: kitchen-ingredient-pulse 1.3s ease-in-out infinite alternate;
 }
 
 .kitchen-ingredient:active {
+  cursor: grabbing;
   transform: scale(0.95);
+}
+
+/* Mientras el ingrediente viaja con el dedo queda su hueco en la bandeja. */
+.kitchen-ingredient--ghost {
+  animation: none;
+  opacity: 0.28;
+  box-shadow: none;
 }
 
 .kitchen-ingredient-emoji {
@@ -1942,6 +1956,23 @@ body {
   line-height: 1;
   pointer-events: none;
   animation: kitchen-hint-tap 900ms ease-in-out infinite alternate;
+}
+
+/* Ingrediente pegado al dedo durante el drag. */
+.kitchen-drag-item {
+  position: fixed;
+  font-size: 104px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, -50%) scale(1.08) rotate(-4deg);
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.3));
+}
+
+.kitchen-drag-item--over {
+  transform: translate(-50%, -50%) scale(1.22) rotate(0deg);
+  filter: drop-shadow(0 0 20px rgba(255, 181, 69, 0.95))
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.3));
 }
 
 /* Vuelo del ingrediente hacia el objeto central. */
@@ -1971,6 +2002,26 @@ body {
       )
       scale(0.55) rotate(24deg);
     opacity: 0;
+  }
+}
+
+/* Soltar lejos: el ingrediente regresa a la bandeja sin castigo. */
+.kitchen-fly--return {
+  animation: kitchen-fly-return 300ms ease-out forwards;
+}
+
+@keyframes kitchen-fly-return {
+  from {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(
+        calc(-50% + var(--kitchen-fly-dx, 0px)),
+        calc(-50% + var(--kitchen-fly-dy, 0px))
+      )
+      scale(1);
+    opacity: 1;
   }
 }
 
@@ -2047,8 +2098,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kitchen-object--bowl .kitchen-object-inner,
-  .kitchen-object--plate .kitchen-object-inner,
+  .kitchen-object:not(.kitchen-object--magnet) .kitchen-object-inner,
   .kitchen-ingredient,
   .kitchen-hand,
   .kitchen-hint,
