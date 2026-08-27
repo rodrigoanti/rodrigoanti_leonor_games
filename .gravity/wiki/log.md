@@ -9,3 +9,8 @@
 - `2026-08-27T01:49:32.003Z` — [tech-lead-copy] [tl] Actualicé el prefijo .paint-* de decisión pendiente a estado aplicado, con el inventario real de clases.
 - `2026-08-27T01:52:08.719Z` — [tech-lead-copy] [tl] Documenté el flujo de Teléfono en /telefono y sumé el quinto juego al registro de rutas.
 - `2026-08-27T01:53:58.939Z` — [fullstack] Documenté flujo de deploy: develop → CI → SSH → PM2 leonor-games en 3004.
+- `2026-08-27T02:07:51.155Z` — [tl] Documenté contrato audio-system: unlock, storage key, SoundIds e integración por juego.
+- `2026-08-27T02:08:59.848Z` — [fullstack] Puerto 30125 confirmado en prod; workflow ahora clona en primer deploy.
+- `2026-08-27T02:10:42.516Z` — [product-designer] Brief de producto para tres juegos causa-efecto: Estrellas, Luces, Burbujas.
+- `2026-08-27T02:50:52.300Z` — [fullstack] Wiki: workflow Server Recovery y ops en VPS
+- `2026-08-27T02:56:46.288Z` — [fullstack] Wiki: fail2ban como causa de connection refused en 22222; fix-ssh-access
