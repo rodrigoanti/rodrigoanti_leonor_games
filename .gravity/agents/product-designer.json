@@ -9,6 +9,9 @@
   "rules": [
     "responde simple, conciso"
   ],
+  "contextIds": [
+    "iaterminal:notes:About"
+  ],
   "order": 5,
   "emitResults": true
 }

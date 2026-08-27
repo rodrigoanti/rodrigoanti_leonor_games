@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import SoundToggle from "@/components/SoundToggle";
 import {
   createGameRounds,
   ROUNDS_PER_GAME,
   type NumberRound,
 } from "@/lib/numbers";
+import { playSound, unlockAudio } from "@/lib/audio";
 
 const CELEBRATION_DELAY_MS = 600;
 const SHAKE_DELAY_MS = 400;
@@ -43,13 +45,18 @@ export default function NumbersGame() {
         return;
       }
 
+      unlockAudio();
+      playSound("tap");
+
       if (option === round.count) {
+        playSound("correct");
         setEvaluating(true);
         setCelebrating(true);
         setCorrectOption(option);
 
         timeoutRef.current = setTimeout(() => {
           if (currentRound === ROUNDS_PER_GAME - 1) {
+            playSound("victory");
             setVictory(true);
           } else {
             setCurrentRound((r) => r + 1);
@@ -60,6 +67,7 @@ export default function NumbersGame() {
           timeoutRef.current = null;
         }, CELEBRATION_DELAY_MS);
       } else {
+        playSound("wrong");
         setEvaluating(true);
         setShaking(option);
 
@@ -92,6 +100,7 @@ export default function NumbersGame() {
           </Link>
           <div className="app-title">Números</div>
         </div>
+        <SoundToggle />
       </header>
 
       <div className="numbers-main">

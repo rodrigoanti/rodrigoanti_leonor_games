@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Juegos de Leo">
+  <rect width="512" height="512" rx="112" fill="#ffe5ec"/>
+  <circle cx="256" cy="256" r="148" fill="#4dabf7"/>
+  <path fill="#ffd43b" d="M256 108l28 86h90l-72 54 28 86-58-44-58 44 28-86-72-54h90z"/>
+</svg>

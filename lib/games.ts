@@ -42,4 +42,25 @@ export const GAMES: Game[] = [
     href: "/telefono",
     available: true,
   },
+  {
+    id: "estrellas",
+    title: "Estrellas",
+    emoji: "⭐",
+    href: "/estrellas",
+    available: true,
+  },
+  {
+    id: "luces",
+    title: "Luces",
+    emoji: "💡",
+    href: "/luces",
+    available: true,
+  },
+  {
+    id: "burbujas",
+    title: "Burbujas",
+    emoji: "🫧",
+    href: "/burbujas",
+    available: true,
+  },
 ];

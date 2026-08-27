@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import SoundToggle from "@/components/SoundToggle";
 import {
   createGameRounds,
   ROUNDS_PER_GAME,
@@ -9,6 +10,7 @@ import {
   type ShapeId,
   type ShapeRound,
 } from "@/lib/shapes";
+import { playSound, unlockAudio } from "@/lib/audio";
 
 const CELEBRATION_DELAY_MS = 600;
 const SHAKE_DELAY_MS = 400;
@@ -90,13 +92,18 @@ export default function ShapesGame() {
         return;
       }
 
+      unlockAudio();
+      playSound("tap");
+
       if (optionId === round.correctId) {
+        playSound("correct");
         setEvaluating(true);
         setCelebrating(true);
         setCorrectOption(optionId);
 
         timeoutRef.current = setTimeout(() => {
           if (currentRound === ROUNDS_PER_GAME - 1) {
+            playSound("victory");
             setVictory(true);
           } else {
             setCurrentRound((r) => r + 1);
@@ -107,6 +114,7 @@ export default function ShapesGame() {
           timeoutRef.current = null;
         }, CELEBRATION_DELAY_MS);
       } else {
+        playSound("wrong");
         setEvaluating(true);
         setShaking(optionId);
 
@@ -139,6 +147,7 @@ export default function ShapesGame() {
           </Link>
           <div className="app-title">Formas</div>
         </div>
+        <SoundToggle />
       </header>
 
       <div className="shapes-main">

@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import SoundToggle from "@/components/SoundToggle";
 import {
   createShuffledDeck,
   type MemoryCard,
 } from "@/lib/memory";
+import { playSound, unlockAudio } from "@/lib/audio";
 
 const FLIP_BACK_DELAY_MS = 1000;
 
@@ -42,6 +44,9 @@ export default function MemoryGame() {
         return;
       }
 
+      unlockAudio();
+      playSound("flip");
+
       const nextFlipped = [...flippedIds, card.id];
       setFlippedIds(nextFlipped);
 
@@ -55,6 +60,7 @@ export default function MemoryGame() {
       const second = deck.find((c) => c.id === secondId);
 
       if (first && second && first.pairId === second.pairId) {
+        playSound("correct");
         const nextMatched = new Set(matchedPairIds);
         nextMatched.add(first.pairId);
         setMatchedPairIds(nextMatched);
@@ -62,9 +68,11 @@ export default function MemoryGame() {
         setEvaluating(false);
 
         if (nextMatched.size === 6) {
+          playSound("victory");
           setVictory(true);
         }
       } else {
+        playSound("wrong");
         flipTimeoutRef.current = setTimeout(() => {
           setFlippedIds([]);
           setEvaluating(false);
@@ -95,13 +103,16 @@ export default function MemoryGame() {
           </Link>
           <div className="app-title">Memoria</div>
         </div>
-        <button
-          type="button"
-          className="memory-restart-btn"
-          onClick={restart}
-        >
-          Jugar de nuevo
-        </button>
+        <div className="app-header-actions">
+          <SoundToggle />
+          <button
+            type="button"
+            className="memory-restart-btn"
+            onClick={restart}
+          >
+            Jugar de nuevo
+          </button>
+        </div>
       </header>
 
       <div className="memory-main">

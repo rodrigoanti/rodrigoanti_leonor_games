@@ -3,10 +3,12 @@
 
 <!-- iaterminal:auto -->
 ## Latest
-**Summary:** Pediste el cuarto juego del hub en /numeros. David lo entregó con 8 rondas de conteo; Vanesa validó los 9 flujos sin fallos reproducibles. El hub queda con cuatro juegos activos y lint/build limpios.
-**Request:** Completar e integrar Números en /numeros como cuarto juego del hub y validar con QA.
+**Summary:** Pediste audio compartido con mute en los cinco juegos. Vanesa validó contrato, integraciones, mute global y regresión sin fallos reproducibles; lint y build quedan limpios con las seis rutas estáticas. El slice de audio queda cerrado.
+**Request:** Validar sistema de sonidos en los cinco juegos, mute persistente y regresión funcional.
 
 ## Log
+- `2026-08-27T02:09:02.075Z` — Pediste audio compartido con mute en los cinco juegos. Vanesa validó contrato, integraciones, mute global y regresión sin fallos reproducibles; lint y build quedan limpios con las seis rutas estáticas. El slice de audio queda cerrado.
+- `2026-08-27T02:07:51.158Z` — Pediste audio compartido con mute en los cinco juegos. Quedó lib/audio, SoundToggle y sonidos por juego según contrato; lint y build pasan. Delegué a QA ocho flujos de sonido, mute y regresión.
 - `2026-08-27T01:41:28.852Z` — Pediste el cuarto juego del hub en /numeros. David lo entregó con 8 rondas de conteo; Vanesa validó los 9 flujos sin fallos reproducibles. El hub queda con cuatro juegos activos y lint/build limpios.
 - `2026-08-27T01:40:32.782Z` — David entregó Números siguiendo el patrón de Formas; inspeccioné lib/numbers.ts, NumbersGame, games.ts y estilos: cumple contrato. Delegué a QA 9 flujos incluyendo regresión de los otros tres juegos.
 - `2026-08-27T01:38:35.515Z` — Pediste Números como cuarto juego en /numeros. Inspeccioné rutas, games.ts y el patrón de Formas; no existe código de Números aún. Delegué a frontend con contrato exacto en lib/numbers.ts, NumbersGame y activación en games.ts.

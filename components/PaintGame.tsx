@@ -6,12 +6,14 @@ import BrushSizePicker from "@/components/BrushSizePicker";
 import ClearButton from "@/components/ClearButton";
 import ColorPalette from "@/components/ColorPalette";
 import PaintCanvas, { type PaintCanvasRef } from "@/components/PaintCanvas";
+import SoundToggle from "@/components/SoundToggle";
 import Toolbar from "@/components/Toolbar";
 import {
   brushSizeValue,
   type BrushSizeId,
   type Tool,
 } from "@/lib/drawing";
+import { playSound, unlockAudio } from "@/lib/audio";
 
 export default function PaintGame() {
   const canvasRef = useRef<PaintCanvasRef>(null);
@@ -24,6 +26,24 @@ export default function PaintGame() {
 
   const brushSize = brushSizeValue(brushSizeId);
 
+  const handleToolChange = useCallback((next: Tool) => {
+    unlockAudio();
+    playSound("tap");
+    setTool(next);
+  }, []);
+
+  const handleColorChange = useCallback((next: string) => {
+    unlockAudio();
+    playSound("tap");
+    setColor(next);
+  }, []);
+
+  const handleBrushSizeChange = useCallback((next: BrushSizeId) => {
+    unlockAudio();
+    playSound("tap");
+    setBrushSizeId(next);
+  }, []);
+
   const resetClear = useCallback(() => {
     setClearCount(0);
     setShowClearBanner(false);
@@ -34,11 +54,14 @@ export default function PaintGame() {
   }, []);
 
   const handleClearRequest = useCallback(() => {
+    unlockAudio();
     if (clearCount === 0) {
+      playSound("tap");
       setClearCount(1);
       setShowClearBanner(true);
       clearTimeoutRef.current = setTimeout(resetClear, 3000);
     } else {
+      playSound("clear");
       canvasRef.current?.clear();
       resetClear();
     }
@@ -61,7 +84,10 @@ export default function PaintGame() {
           </Link>
           <div className="app-title">Pinta Leo</div>
         </div>
-        <ClearButton pending={clearCount > 0} onClear={handleClearRequest} />
+        <div className="app-header-actions">
+          <SoundToggle />
+          <ClearButton pending={clearCount > 0} onClear={handleClearRequest} />
+        </div>
       </header>
 
       <main className="paint-main">
@@ -74,15 +100,15 @@ export default function PaintGame() {
           />
         </div>
         <div className="paint-panel paint-panel--tools">
-          <Toolbar selectedTool={tool} onToolChange={setTool} />
+          <Toolbar selectedTool={tool} onToolChange={handleToolChange} />
           <BrushSizePicker
             selectedSize={brushSizeId}
             color={color}
-            onSizeChange={setBrushSizeId}
+            onSizeChange={handleBrushSizeChange}
           />
         </div>
         <div className="paint-panel paint-panel--colors">
-          <ColorPalette selectedColor={color} onColorChange={setColor} />
+          <ColorPalette selectedColor={color} onColorChange={handleColorChange} />
         </div>
         {showClearBanner && (
           <div className="paint-banner">

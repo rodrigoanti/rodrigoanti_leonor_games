@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import SoundToggle from "@/components/SoundToggle";
 import {
   CONTACTS,
   PHRASE_DELAY_MS,
   RINGING_MS,
   type Contact,
 } from "@/lib/phone";
+import { playSound, stopRing, unlockAudio } from "@/lib/audio";
 
 type Screen = "contacts" | "ringing" | "call";
 
@@ -17,12 +19,16 @@ export default function PhoneGame() {
   const [visiblePhrases, setVisiblePhrases] = useState(0);
 
   const startCall = useCallback((selected: Contact) => {
+    unlockAudio();
+    playSound("tap");
     setContact(selected);
     setVisiblePhrases(0);
     setScreen("ringing");
   }, []);
 
   const hangUp = useCallback(() => {
+    stopRing();
+    playSound("hangup");
     setScreen("contacts");
     setContact(null);
     setVisiblePhrases(0);
@@ -32,11 +38,17 @@ export default function PhoneGame() {
     if (screen !== "ringing") {
       return;
     }
+    playSound("ring");
     const timer = setTimeout(() => {
+      stopRing();
+      playSound("connect");
       setScreen("call");
       setVisiblePhrases(1);
     }, RINGING_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      stopRing();
+    };
   }, [screen]);
 
   useEffect(() => {
@@ -61,6 +73,7 @@ export default function PhoneGame() {
           </Link>
           <div className="app-title">Teléfono</div>
         </div>
+        <SoundToggle />
       </header>
 
       <div className="phone-main">

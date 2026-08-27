@@ -14,3 +14,9 @@
 - `2026-08-27T02:10:42.516Z` — [product-designer] Brief de producto para tres juegos causa-efecto: Estrellas, Luces, Burbujas.
 - `2026-08-27T02:50:52.300Z` — [fullstack] Wiki: workflow Server Recovery y ops en VPS
 - `2026-08-27T02:56:46.288Z` — [fullstack] Wiki: fail2ban como causa de connection refused en 22222; fix-ssh-access
+- `2026-08-27T03:13:57.240Z` — [tech-lead-copy] [tl] Estrellas en /estrellas: flujo documentado y registro actualizado a 6 juegos.
+- `2026-08-27T03:15:02.035Z` — [qa] Actualicé audio-system: el SoundId sparkle y su integración en Estrellas ya existen en código.
+- `2026-08-27T03:16:58.040Z` — [tech-lead-copy] [tech-lead-copy] [tl] Luces en /luces: flujo documentado, switchOn/switchOff en audio y registro a 7 juegos.
+- `2026-08-27T03:21:02.622Z` — [tech-lead-copy] [tech-lead-copy] [tl] Burbujas en /burbujas: flujo documentado, SoundId pop en audio y registro a 8 juegos.
+- `2026-08-27T03:22:03.755Z` — [qa] bubbles-game-flow corregido: timers de pop tienen bug de cleanup al desmontar tras reasignar el ref
+- `2026-08-27T03:22:39.911Z` — [tech-lead-copy] bubbles-game-flow: documentada la regla de cleanup de timers (leer el ref al desmontar) tras el fix del bug reportado por QA

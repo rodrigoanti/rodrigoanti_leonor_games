@@ -1,0 +1,26 @@
+{
+  "name": "Juegos de Leo",
+  "short_name": "Leo",
+  "description": "Juegos didácticos para niños pequeños",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffe5ec",
+  "theme_color": "#ffe5ec",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
+import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -11,6 +12,20 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Juegos de Leo",
   description: "Juegos didácticos para niños pequeños",
+  applicationName: "Juegos de Leo",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Juegos de Leo",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export const viewport: Viewport = {
@@ -18,6 +33,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: "#ffe5ec",
 };
 
 export default function RootLayout({
@@ -27,7 +43,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={nunito.variable}>{children}</body>
+      <body className={nunito.variable}>
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

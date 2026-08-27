@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 type GameCardProps = {
@@ -5,6 +7,7 @@ type GameCardProps = {
   emoji: string;
   href: string;
   available: boolean;
+  onActiveTap?: () => void;
 };
 
 export default function GameCard({
@@ -12,10 +15,15 @@ export default function GameCard({
   emoji,
   href,
   available,
+  onActiveTap,
 }: GameCardProps) {
   if (available) {
     return (
-      <Link href={href} className="game-card game-card--active">
+      <Link
+        href={href}
+        className="game-card game-card--active"
+        onClick={onActiveTap}
+      >
         <span className="game-card-emoji" aria-hidden="true">
           {emoji}
         </span>

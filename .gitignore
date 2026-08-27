@@ -29,3 +29,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Snapshots de issues de GitHub: descripciones y comentarios del ticket.
+.gravity/github/
