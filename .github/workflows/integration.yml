@@ -141,24 +141,34 @@ jobs:
             export PATH="$NVM_DIR/versions/node/v18.20.7/bin:$PATH"
             echo "✅ Node.js configurado"
 
-            cd /home/rodrigoanti/dev/leonor_games
+            DEPLOY_DIR="/home/rodrigoanti/dev/leonor_games"
+            REPO_URL="https://github.com/rodrigoanti/rodrigoanti_leonor_games.git"
 
             git config --global url."https://${{ github.actor }}:${{ secrets.GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
-            PREVIOUS_HEAD=$(git rev-parse HEAD)
+            mkdir -p /home/rodrigoanti/dev
 
-            echo "📥 Sincronizando con origin/develop..."
-            git fetch origin develop
-            git reset --hard origin/develop
-            echo "✅ Código actualizado a $(git rev-parse --short HEAD)"
+            if [ ! -d "${DEPLOY_DIR}/.git" ]; then
+              echo "📦 Clonando repo en ${DEPLOY_DIR}"
+              git clone --branch develop "${REPO_URL}" "${DEPLOY_DIR}"
+              cd "${DEPLOY_DIR}"
+              NEEDS_INSTALL=true
+            else
+              cd "${DEPLOY_DIR}"
+              PREVIOUS_HEAD=$(git rev-parse HEAD)
+              echo "📥 Sincronizando con origin/develop..."
+              git fetch origin develop
+              git reset --hard origin/develop
+              echo "✅ Código actualizado a $(git rev-parse --short HEAD)"
 
-            NEEDS_INSTALL=false
-            if [ ! -d "node_modules" ]; then
-              echo "📦 node_modules no existe"
-              NEEDS_INSTALL=true
-            elif ! git diff --quiet "${PREVIOUS_HEAD}" HEAD -- package-lock.json package.json 2>/dev/null; then
-              echo "📦 package.json o package-lock.json cambiaron en este deploy"
-              NEEDS_INSTALL=true
+              NEEDS_INSTALL=false
+              if [ ! -d "node_modules" ]; then
+                echo "📦 node_modules no existe"
+                NEEDS_INSTALL=true
+              elif ! git diff --quiet "${PREVIOUS_HEAD}" HEAD -- package-lock.json package.json 2>/dev/null; then
+                echo "📦 package.json o package-lock.json cambiaron en este deploy"
+                NEEDS_INSTALL=true
+              fi
             fi
 
             if [ "${NEEDS_INSTALL}" = true ]; then
@@ -170,6 +180,7 @@ jobs:
 
             npm run build
 
+            pm2 delete leonor-games 2>/dev/null || true
             npm run prod
             sleep 3
 
