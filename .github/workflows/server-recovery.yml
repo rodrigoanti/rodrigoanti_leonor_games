@@ -15,6 +15,7 @@ on:
           - restart-app
           - apply-nginx
           - disable-malware-services
+          - fix-ssh-access
 
 jobs:
   recovery:
@@ -85,10 +86,62 @@ jobs:
               UNIT="$(ssh_unit)"
               echo "📋 Estado ${UNIT}"
               systemctl status "${UNIT}" --no-pager || true
+              echo "--- sshd_config Port / ListenAddress ---"
+              grep -E '^(Port|ListenAddress|AddressFamily)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null || true
               echo "--- puertos ssh ---"
               ss -tlnp | grep -E '22222|ssh' || true
               echo "--- ufw 22222 ---"
-              ufw status 2>/dev/null | grep 22222 || true
+              ufw status numbered 2>/dev/null | grep -E '22222|Status' || true
+              echo "--- fail2ban ---"
+              if command -v fail2ban-client >/dev/null 2>&1; then
+                fail2ban-client status 2>/dev/null || true
+                fail2ban-client status sshd 2>/dev/null || fail2ban-client status ssh 2>/dev/null || true
+              else
+                echo "ℹ️ fail2ban no instalado"
+              fi
+              echo "--- iptables f2b (si existe) ---"
+              iptables -L f2b-sshd -n 2>/dev/null | head -25 || iptables -L -n 2>/dev/null | head -25 || true
+              echo "--- últimas conexiones ssh (auth.log) ---"
+              tail -15 /var/log/auth.log 2>/dev/null || tail -15 /var/log/secure 2>/dev/null || true
+            }
+
+            fix_ssh_access() {
+              echo "🔧 Corrigiendo acceso SSH externo"
+              UNIT="$(ssh_unit)"
+
+              if command -v fail2ban-client >/dev/null 2>&1; then
+                echo "--- fail2ban antes ---"
+                fail2ban-client status sshd 2>/dev/null || fail2ban-client status ssh 2>/dev/null || true
+                for JAIL in sshd ssh; do
+                  if fail2ban-client status "${JAIL}" >/dev/null 2>&1; then
+                    echo "🧹 fail2ban unban --all en ${JAIL}"
+                    fail2ban-client set "${JAIL}" unbanip --all 2>/dev/null || \
+                      fail2ban-client unban --all 2>/dev/null || true
+                  fi
+                done
+              fi
+
+              if [ -f /etc/fail2ban/jail.local ]; then
+                echo "--- jail.local ---"
+                grep -E 'bantime|maxretry|ignoreip' /etc/fail2ban/jail.local 2>/dev/null || true
+              fi
+
+              echo "🔧 Asegurando Port 22222 en sshd"
+              mkdir -p /etc/ssh/sshd_config.d
+              cat > /etc/ssh/sshd_config.d/99-leonor-port.conf <<'SSHD'
+Port 22222
+ListenAddress 0.0.0.0
+ListenAddress ::
+SSHD
+              sshd -t
+              systemctl restart "${UNIT}"
+              sleep 2
+
+              echo "🔧 UFW: permitir 22222"
+              ufw allow 22222/tcp 2>/dev/null || true
+
+              echo "--- después ---"
+              ssh_status
             }
 
             restart_app() {
@@ -144,21 +197,7 @@ jobs:
 
               echo ""
               echo "--- 1/5 SSH ---"
-              UNIT="$(ssh_unit)"
-              if ! systemctl is-active --quiet "${UNIT}"; then
-                echo "⚠️ ${UNIT} no activo — reiniciando"
-                restart_ssh
-              else
-                echo "✅ ${UNIT} activo"
-              fi
-              if ! ss -tlnp | grep -q ':22222'; then
-                echo "⚠️ nada escucha en 22222 — reiniciando ssh"
-                restart_ssh
-              else
-                echo "✅ puerto 22222 en escucha"
-                ss -tlnp | grep 22222
-              fi
-              ufw status 2>/dev/null | grep 22222 || echo "ℹ️ revisar ufw manualmente si ssh falla desde fuera"
+              fix_ssh_access
 
               echo ""
               echo "--- 2/5 servicios sospechosos (solo reporte) ---"
@@ -217,6 +256,9 @@ jobs:
                 ;;
               disable-malware-services)
                 disable_malware_services
+                ;;
+              fix-ssh-access)
+                fix_ssh_access
                 ;;
               *)
                 echo "Acción no reconocida: ${ACTION}"
