@@ -6,11 +6,17 @@ export type MemoryCard = {
 
 export const MEMORY_EMOJIS = ["🐶", "🐱", "🐸", "🦁", "🐷", "🐻"];
 
-export function createShuffledDeck(): MemoryCard[] {
-  const cards: MemoryCard[] = MEMORY_EMOJIS.flatMap((emoji, pairId) => [
+// Orden fijo para el primer render: el HTML estático del build y la
+// hidratación del cliente deben coincidir. El azar se aplica ya montado.
+export function createOrderedDeck(): MemoryCard[] {
+  return MEMORY_EMOJIS.flatMap((emoji, pairId) => [
     { id: `${pairId}-a`, emoji, pairId },
     { id: `${pairId}-b`, emoji, pairId },
   ]);
+}
+
+export function createShuffledDeck(): MemoryCard[] {
+  const cards = createOrderedDeck();
 
   for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

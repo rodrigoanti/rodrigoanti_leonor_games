@@ -41,6 +41,20 @@ function pickRandomShapeIdNot(previous: ShapeId | null): ShapeId {
   return id;
 }
 
+// Rondas deterministas para el primer render: el HTML estático del build y la
+// hidratación del cliente deben coincidir. El azar se aplica ya montado.
+export function createOrderedRounds(): ShapeRound[] {
+  return Array.from({ length: ROUNDS_PER_GAME }, (_, i) => {
+    const correctId = ALL_SHAPE_IDS[i % ALL_SHAPE_IDS.length];
+    const shape = SHAPES.find((s) => s.id === correctId)!;
+    return {
+      prompt: `¿Cuál es el ${shape.name}?`,
+      correctId,
+      options: [...ALL_SHAPE_IDS],
+    };
+  });
+}
+
 export function createGameRounds(): ShapeRound[] {
   const rounds: ShapeRound[] = [];
   let previousCorrectId: ShapeId | null = null;

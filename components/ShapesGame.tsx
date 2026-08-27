@@ -5,6 +5,7 @@ import Link from "next/link";
 import SoundToggle from "@/components/SoundToggle";
 import {
   createGameRounds,
+  createOrderedRounds,
   ROUNDS_PER_GAME,
   SHAPES,
   type ShapeId,
@@ -61,7 +62,9 @@ function ShapeSvg({ id }: { id: ShapeId }) {
 }
 
 export default function ShapesGame() {
-  const [rounds, setRounds] = useState<ShapeRound[]>(() => createGameRounds());
+  const [rounds, setRounds] = useState<ShapeRound[]>(() =>
+    createOrderedRounds(),
+  );
   const [currentRound, setCurrentRound] = useState(0);
   const [victory, setVictory] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -127,6 +130,12 @@ export default function ShapesGame() {
     },
     [evaluating, victory, celebrating, round.correctId, currentRound],
   );
+
+  // Las rondas se aleatorizan solo después de montar: si se generaran durante el
+  // render el HTML estático del build no coincidiría con el del cliente.
+  useEffect(() => {
+    setRounds(createGameRounds());
+  }, []);
 
   useEffect(() => {
     return () => {

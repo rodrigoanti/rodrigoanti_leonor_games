@@ -5,6 +5,7 @@ import Link from "next/link";
 import SoundToggle from "@/components/SoundToggle";
 import {
   createGameRounds,
+  createOrderedRounds,
   ROUNDS_PER_GAME,
   type NumberRound,
 } from "@/lib/numbers";
@@ -14,7 +15,9 @@ const CELEBRATION_DELAY_MS = 600;
 const SHAKE_DELAY_MS = 400;
 
 export default function NumbersGame() {
-  const [rounds, setRounds] = useState<NumberRound[]>(() => createGameRounds());
+  const [rounds, setRounds] = useState<NumberRound[]>(() =>
+    createOrderedRounds(),
+  );
   const [currentRound, setCurrentRound] = useState(0);
   const [victory, setVictory] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -80,6 +83,12 @@ export default function NumbersGame() {
     },
     [evaluating, victory, celebrating, round.count, currentRound],
   );
+
+  // Las rondas se aleatorizan solo después de montar: si se generaran durante el
+  // render el HTML estático del build no coincidiría con el del cliente.
+  useEffect(() => {
+    setRounds(createGameRounds());
+  }, []);
 
   useEffect(() => {
     return () => {

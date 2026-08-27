@@ -50,6 +50,24 @@ function buildOptions(count: number): number[] {
   return shuffle([count, ...shuffle(distractors).slice(0, 3)]);
 }
 
+function buildOrderedOptions(count: number): number[] {
+  const distractors = ALL_COUNTS.filter((n) => n !== count).slice(0, 3);
+  return [count, ...distractors].sort((a, b) => a - b);
+}
+
+// Rondas deterministas para el primer render: el HTML estático del build y la
+// hidratación del cliente deben coincidir. El azar se aplica ya montado.
+export function createOrderedRounds(): NumberRound[] {
+  return Array.from({ length: ROUNDS_PER_GAME }, (_, i) => {
+    const count = ALL_COUNTS[i % ALL_COUNTS.length];
+    return {
+      emoji: COUNT_EMOJIS[i % COUNT_EMOJIS.length],
+      count,
+      options: buildOrderedOptions(count),
+    };
+  });
+}
+
 export function createGameRounds(): NumberRound[] {
   const rounds: NumberRound[] = [];
   let previousCount: number | null = null;

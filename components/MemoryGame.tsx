@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import SoundToggle from "@/components/SoundToggle";
 import {
+  createOrderedDeck,
   createShuffledDeck,
   type MemoryCard,
 } from "@/lib/memory";
@@ -12,7 +13,7 @@ import { playSound, unlockAudio } from "@/lib/audio";
 const FLIP_BACK_DELAY_MS = 1000;
 
 export default function MemoryGame() {
-  const [deck, setDeck] = useState<MemoryCard[]>(() => createShuffledDeck());
+  const [deck, setDeck] = useState<MemoryCard[]>(() => createOrderedDeck());
   const [flippedIds, setFlippedIds] = useState<string[]>([]);
   const [matchedPairIds, setMatchedPairIds] = useState<Set<number>>(
     () => new Set(),
@@ -82,6 +83,12 @@ export default function MemoryGame() {
     },
     [deck, evaluating, flippedIds, matchedPairIds, victory],
   );
+
+  // El deck se baraja solo después de montar: si se barajara durante el render
+  // el HTML estático del build no coincidiría con el del cliente al hidratar.
+  useEffect(() => {
+    setDeck(createShuffledDeck());
+  }, []);
 
   useEffect(() => {
     return () => {
