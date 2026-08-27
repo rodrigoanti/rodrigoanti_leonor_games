@@ -1590,31 +1590,44 @@ body {
   }
 }
 
+/* Cocina Leo v2: escena de mesa, tap-place y objetos grandes. Sin punteados ni drag. */
 .kitchen-main {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  padding-left: calc(16px + var(--safe-left));
-  padding-right: calc(16px + var(--safe-right));
-  padding-bottom: calc(16px + var(--safe-bottom));
-  gap: 16px;
-  background: linear-gradient(180deg, #fff8e6 0%, #fff2f0 100%);
+  padding: 12px;
+  padding-left: calc(12px + var(--safe-left));
+  padding-right: calc(12px + var(--safe-right));
+  padding-bottom: calc(12px + var(--safe-bottom));
+  gap: 10px;
+  background: linear-gradient(180deg, #f6dfc0 0%, #e6bd8c 32%, #c98f52 100%);
+  background-image: repeating-linear-gradient(
+      90deg,
+      rgba(120, 72, 30, 0.12) 0px,
+      rgba(120, 72, 30, 0.12) 2px,
+      transparent 2px,
+      transparent 46px
+    ),
+    linear-gradient(180deg, #f6dfc0 0%, #e6bd8c 32%, #c98f52 100%);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .kitchen-prompt {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   text-align: center;
-  color: var(--text);
+  color: #5a3410;
   margin: 0;
 }
 
 .kitchen-menu {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
   flex: 1;
   align-content: center;
 }
@@ -1624,29 +1637,29 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  min-height: 140px;
-  padding: 20px 16px;
-  border: 3px solid #ffd8a8;
-  border-radius: 24px;
-  background: #fff;
+  gap: 10px;
+  min-height: 180px;
+  padding: 16px;
+  border: none;
+  border-radius: 28px;
+  background: #fffdf7;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(255, 150, 80, 0.15);
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 8px 20px rgba(90, 52, 16, 0.28);
+  transition: transform 150ms ease;
 }
 
 .kitchen-dish-card:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .kitchen-dish-emoji {
-  font-size: 52px;
+  font-size: 84px;
   line-height: 1;
 }
 
 .kitchen-dish-name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--text);
 }
@@ -1656,125 +1669,170 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.kitchen-steps {
-  display: flex;
-  justify-content: center;
   gap: 8px;
+}
+
+.kitchen-progress {
   flex-shrink: 0;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(90, 52, 16, 0.2);
+  overflow: hidden;
 }
 
-.kitchen-step-dot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #e9ecef;
-  font-size: 16px;
-  opacity: 0.45;
-  transition: background 200ms ease, opacity 200ms ease, transform 200ms ease;
-}
-
-.kitchen-step-dot--done {
-  background: #b2f2bb;
-  opacity: 0.7;
-}
-
-.kitchen-step-dot--active {
-  background: #ffd8a8;
-  opacity: 1;
-  transform: scale(1.15);
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.45);
-}
-
-.kitchen-action-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.kitchen-action-icon {
-  font-size: 36px;
-  line-height: 1;
+.kitchen-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #ffb545;
+  transition: width 250ms ease;
 }
 
 .kitchen-action-label {
-  font-size: 18px;
+  flex-shrink: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
   font-weight: 800;
-  color: var(--text);
+  color: #5a3410;
 }
 
-.kitchen-workspace {
+.kitchen-scene {
   position: relative;
   flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.kitchen-zone {
-  position: relative;
+  min-height: 40vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 120px;
-  border: 3px dashed #dee2e6;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.75);
-  transition: border-color 200ms ease, background 200ms ease,
-    box-shadow 200ms ease;
 }
 
-.kitchen-zone--highlight {
-  border-color: var(--color-active-ring);
-  background: #fff9db;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
-}
-
-.kitchen-zone--bowl {
-  touch-action: none;
-}
-
-.kitchen-bowl-inner {
-  position: relative;
+.kitchen-scene-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   width: 100%;
-  min-height: 100px;
+  height: 100%;
 }
 
-.kitchen-bowl-emoji {
-  font-size: 48px;
+.kitchen-object {
+  position: relative;
+  flex: 1;
+  min-height: 40%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
+
+.kitchen-scene > .kitchen-object {
+  min-height: 40vh;
+}
+
+.kitchen-object--stir,
+.kitchen-object--bread {
+  touch-action: none;
+}
+
+.kitchen-object-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.kitchen-object-emoji {
+  font-size: clamp(140px, 30vh, 260px);
   line-height: 1;
+  filter: drop-shadow(0 10px 14px rgba(90, 52, 16, 0.35));
+}
+
+.kitchen-object-emoji--cut {
+  transform: scale(0.94) rotate(-2deg);
+  transition: transform 300ms ease;
+}
+
+.kitchen-object--bowl .kitchen-object-inner,
+.kitchen-object--plate .kitchen-object-inner {
+  animation: kitchen-object-idle 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes kitchen-object-idle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
 }
 
 .kitchen-bowl-items {
-  display: flex;
-  gap: 4px;
-  font-size: 28px;
-  margin-top: 4px;
-}
-
-.kitchen-stir-hint {
   position: absolute;
-  font-size: 32px;
-  animation: kitchen-stir-spin 1.2s linear infinite;
+  top: 34%;
+  display: flex;
+  gap: 6px;
+  font-size: clamp(40px, 9vh, 72px);
+  line-height: 1;
+  pointer-events: none;
 }
 
-@keyframes kitchen-stir-spin {
+.kitchen-sandwich-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  font-size: clamp(76px, 16vh, 130px);
+  line-height: 0.86;
+  filter: drop-shadow(0 10px 14px rgba(90, 52, 16, 0.35));
+}
+
+.kitchen-cut-line {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  height: 5px;
+  background: rgba(90, 52, 16, 0.55);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.kitchen-sprinkle-particle {
+  position: absolute;
+  font-size: 34px;
+  pointer-events: none;
+  animation: kitchen-sprinkle-pop 700ms ease-out forwards;
+}
+
+@keyframes kitchen-sprinkle-pop {
+  0% {
+    opacity: 1;
+    transform: scale(0.6) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4) translateY(-40px);
+  }
+}
+
+/* Un solo hint grande por paso, nunca fila de iconos chicos. */
+.kitchen-hint {
+  position: absolute;
+  font-size: 72px;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+}
+
+.kitchen-hint--stir {
+  animation: kitchen-hint-spin 1.6s linear infinite;
+}
+
+@keyframes kitchen-hint-spin {
   from {
     transform: rotate(0deg);
   }
@@ -1783,152 +1841,137 @@ body {
   }
 }
 
-.kitchen-plate-emoji {
-  font-size: 52px;
-  line-height: 1;
+.kitchen-hint--tap {
+  bottom: 4%;
+  animation: kitchen-hint-tap 900ms ease-in-out infinite alternate;
 }
 
-.kitchen-shaker {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 32px;
-}
-
-.kitchen-sprinkle-particle {
-  position: absolute;
-  font-size: 18px;
-  pointer-events: none;
-  animation: kitchen-sprinkle-pop 700ms ease-out forwards;
-}
-
-@keyframes kitchen-sprinkle-pop {
-  0% {
-    opacity: 1;
-    transform: scale(0.5) translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.2) translateY(-24px);
-  }
-}
-
-.kitchen-bread-emoji {
-  font-size: 64px;
-  line-height: 1;
-  transition: transform 300ms ease;
-}
-
-.kitchen-bread-emoji--cut {
-  transform: scale(0.92);
-}
-
-.kitchen-cut-line {
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  height: 3px;
-  background: rgba(80, 50, 20, 0.5);
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-.kitchen-sandwich-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  font-size: 36px;
-  line-height: 1;
-}
-
-.kitchen-tap-hint {
-  animation: kitchen-tap-bounce 800ms ease-in-out infinite alternate;
-}
-
-@keyframes kitchen-tap-bounce {
+@keyframes kitchen-hint-tap {
   from {
-    transform: translateY(8px);
+    transform: translateY(10px) scale(1);
   }
   to {
-    transform: translateY(-4px);
+    transform: translateY(-10px) scale(1.12);
   }
 }
 
-.kitchen-ingredient {
-  position: absolute;
+.kitchen-hint--shaker {
+  top: 2%;
+  font-size: 88px;
+  animation: kitchen-hint-shake 900ms ease-in-out infinite;
+}
+
+@keyframes kitchen-hint-shake {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(12deg) translateY(-10px);
+  }
+}
+
+.kitchen-hint--swipe {
+  bottom: 8%;
+  animation: kitchen-hint-swipe 1.4s ease-in-out infinite;
+}
+
+@keyframes kitchen-hint-swipe {
+  0%,
+  100% {
+    transform: translateX(-70px);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(70px);
+    opacity: 1;
+  }
+}
+
+/* Bandeja: un unico ingrediente activo por paso. */
+.kitchen-tray {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 72px;
-  min-height: 72px;
-  padding: 8px;
+  padding-top: 4px;
+}
+
+.kitchen-ingredient {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  min-height: 140px;
+  padding: 10px;
   border: none;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  font-size: 44px;
-  line-height: 1;
-  cursor: grab;
-  touch-action: none;
-  transition: transform 400ms ease;
-  z-index: 2;
+  border-radius: 32px;
+  background: #fffdf7;
+  box-shadow: 0 8px 18px rgba(90, 52, 16, 0.3);
+  font-family: inherit;
+  cursor: pointer;
+  animation: kitchen-ingredient-pulse 1.3s ease-in-out infinite alternate;
 }
 
 .kitchen-ingredient:active {
-  cursor: grabbing;
+  transform: scale(0.95);
 }
 
-.kitchen-ingredient--return {
-  animation: kitchen-ingredient-return 400ms ease;
+.kitchen-ingredient-emoji {
+  font-size: 104px;
+  line-height: 1;
 }
 
-@keyframes kitchen-ingredient-return {
-  0% {
-    transform: scale(0.9);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-  100% {
+@keyframes kitchen-ingredient-pulse {
+  from {
     transform: scale(1);
+    box-shadow: 0 8px 18px rgba(90, 52, 16, 0.3);
+  }
+  to {
+    transform: scale(1.06);
+    box-shadow: 0 12px 26px rgba(255, 181, 69, 0.55);
   }
 }
 
-.kitchen-ingredient--lettuce {
-  bottom: 12%;
-  left: 8%;
+.kitchen-hand {
+  position: absolute;
+  right: -14px;
+  bottom: -14px;
+  font-size: 52px;
+  line-height: 1;
+  pointer-events: none;
+  animation: kitchen-hint-tap 900ms ease-in-out infinite alternate;
 }
 
-.kitchen-ingredient--tomato {
-  bottom: 12%;
-  right: 8%;
-}
-
-.kitchen-ingredient--salad {
-  bottom: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.kitchen-ingredient--ham {
-  bottom: 8%;
-  left: 8%;
-}
-
-.kitchen-ingredient--cheese {
-  bottom: 8%;
-  right: 8%;
-}
-
-.kitchen-drag-ghost {
+/* Vuelo del ingrediente hacia el objeto central. */
+.kitchen-fly {
   position: fixed;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
+  font-size: 104px;
   line-height: 1;
   pointer-events: none;
   z-index: 100;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transform: translate(-50%, -50%);
+  animation: kitchen-fly 420ms ease-in forwards;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes kitchen-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(-50% + var(--kitchen-fly-dx, 0px)),
+        calc(-50% + var(--kitchen-fly-dy, 0px))
+      )
+      scale(0.55) rotate(24deg);
+    opacity: 0;
+  }
 }
 
 .kitchen-done {
@@ -1942,7 +1985,7 @@ body {
 }
 
 .kitchen-done-emoji {
-  font-size: 72px;
+  font-size: 110px;
   line-height: 1;
   animation: kitchen-done-bounce 1s ease-in-out infinite alternate;
 }
@@ -1957,17 +2000,17 @@ body {
 }
 
 .kitchen-done-title {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 900;
   margin: 0;
-  color: var(--text);
+  color: #5a3410;
 }
 
 .kitchen-done-sub {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: var(--text-muted);
+  color: #7a4d1c;
 }
 
 .kitchen-btn {
@@ -1985,7 +2028,7 @@ body {
   font-weight: 800;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 150ms ease, box-shadow 150ms ease;
+  transition: transform 150ms ease;
 }
 
 .kitchen-btn:active {
@@ -1999,7 +2042,17 @@ body {
 }
 
 .kitchen-btn--secondary {
-  background: #fff;
+  background: #fffdf7;
   color: var(--text);
-  border: 2px solid #dee2e6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitchen-object--bowl .kitchen-object-inner,
+  .kitchen-object--plate .kitchen-object-inner,
+  .kitchen-ingredient,
+  .kitchen-hand,
+  .kitchen-hint,
+  .kitchen-done-emoji {
+    animation: none;
+  }
 }

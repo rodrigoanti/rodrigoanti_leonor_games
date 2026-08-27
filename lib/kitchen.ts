@@ -1,8 +1,10 @@
 export type KitchenScreen = "menu" | "cooking" | "done";
 
-export type GestureType = "drag" | "stir" | "sprinkle" | "cut" | "tap";
+export type GestureType = "tap-place" | "stir" | "sprinkle" | "cut" | "tap";
 
 export type TargetZone = "bowl" | "plate" | "sandwich" | "bread";
+
+export type SceneId = "bowl" | "pour" | "plate" | "bread" | "sandwich";
 
 export type KitchenStep = {
   id: string;
@@ -10,6 +12,7 @@ export type KitchenStep = {
   ingredientEmoji: string;
   actionIcon: string;
   targetZone: TargetZone;
+  scene: SceneId;
   shortLabel: string;
 };
 
@@ -27,7 +30,7 @@ export const STIR_TIME_MS = 2000;
 export const SPRINKLE_TAPS_REQUIRED = 4;
 export const CUT_SWIPES_REQUIRED = 3;
 export const CUT_SWIPE_MIN_PX = 72;
-export const DRAG_ZONE_MIN_PX = 72;
+export const FLY_DURATION_MS = 420;
 
 export const DISHES: Dish[] = [
   {
@@ -37,35 +40,39 @@ export const DISHES: Dish[] = [
     steps: [
       {
         id: "salad-lettuce",
-        gesture: "drag",
+        gesture: "tap-place",
         ingredientEmoji: "🥬",
         actionIcon: "👆",
         targetZone: "bowl",
-        shortLabel: "Lechuga al bowl",
+        scene: "bowl",
+        shortLabel: "Toca la lechuga",
       },
       {
         id: "salad-tomato",
-        gesture: "drag",
+        gesture: "tap-place",
         ingredientEmoji: "🍅",
         actionIcon: "👆",
         targetZone: "bowl",
-        shortLabel: "Tomate al bowl",
+        scene: "bowl",
+        shortLabel: "Toca el tomate",
       },
       {
         id: "salad-stir",
         gesture: "stir",
         ingredientEmoji: "🥣",
-        actionIcon: "🔄",
+        actionIcon: "🌀",
         targetZone: "bowl",
-        shortLabel: "Revolver",
+        scene: "bowl",
+        shortLabel: "Revuelve el bowl",
       },
       {
         id: "salad-serve",
-        gesture: "drag",
+        gesture: "tap-place",
         ingredientEmoji: "🥗",
         actionIcon: "👆",
         targetZone: "plate",
-        shortLabel: "Al plato",
+        scene: "pour",
+        shortLabel: "Toca el bowl",
       },
       {
         id: "salad-sprinkle",
@@ -73,7 +80,8 @@ export const DISHES: Dish[] = [
         ingredientEmoji: "🧂",
         actionIcon: "✨",
         targetZone: "plate",
-        shortLabel: "Salpicar",
+        scene: "plate",
+        shortLabel: "Salpica el plato",
       },
     ],
   },
@@ -86,33 +94,37 @@ export const DISHES: Dish[] = [
         id: "sandwich-cut",
         gesture: "cut",
         ingredientEmoji: "🍞",
-        actionIcon: "🔪",
+        actionIcon: "👉",
         targetZone: "bread",
-        shortLabel: "Cortar pan",
+        scene: "bread",
+        shortLabel: "Corta el pan",
       },
       {
         id: "sandwich-ham",
-        gesture: "drag",
+        gesture: "tap-place",
         ingredientEmoji: "🥓",
         actionIcon: "👆",
         targetZone: "sandwich",
-        shortLabel: "Jamón",
+        scene: "sandwich",
+        shortLabel: "Toca el jamón",
       },
       {
         id: "sandwich-cheese",
-        gesture: "drag",
+        gesture: "tap-place",
         ingredientEmoji: "🧀",
         actionIcon: "👆",
         targetZone: "sandwich",
-        shortLabel: "Queso",
+        scene: "sandwich",
+        shortLabel: "Toca el queso",
       },
       {
         id: "sandwich-tap",
         gesture: "tap",
         ingredientEmoji: "🍞",
-        actionIcon: "👇",
+        actionIcon: "👆",
         targetZone: "sandwich",
-        shortLabel: "Tapar",
+        scene: "sandwich",
+        shortLabel: "Tapa el sándwich",
       },
     ],
   },

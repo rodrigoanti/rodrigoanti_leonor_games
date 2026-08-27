@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import Link from "next/link";
@@ -14,35 +15,27 @@ import {
   CUT_SWIPE_MIN_PX,
   CUT_SWIPES_REQUIRED,
   DISHES,
+  FLY_DURATION_MS,
   SPRINKLE_TAPS_REQUIRED,
   STIR_CIRCLES_REQUIRED,
   STIR_TIME_MS,
   type Dish,
   type KitchenScreen,
   type KitchenStep,
-  type TargetZone,
 } from "@/lib/kitchen";
 
 type Point = { x: number; y: number };
 
-function isPointInRect(point: Point, rect: DOMRect): boolean {
-  return (
-    point.x >= rect.left &&
-    point.x <= rect.right &&
-    point.y >= rect.top &&
-    point.y <= rect.bottom
-  );
-}
+type Flying = {
+  emoji: string;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+};
 
-function getZoneRect(
-  zone: TargetZone,
-  refs: Record<TargetZone, HTMLDivElement | null>,
-): DOMRect | null {
-  const el = refs[zone];
-  if (!el) {
-    return null;
-  }
-  return el.getBoundingClientRect();
+function centerOf(rect: DOMRect): Point {
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
 export default function KitchenGame() {
@@ -52,6 +45,7 @@ export default function KitchenGame() {
   const [bowlItems, setBowlItems] = useState<string[]>([]);
   const [plateReady, setPlateReady] = useState(false);
   const [sandwichLayers, setSandwichLayers] = useState<string[]>([]);
+  const [sandwichClosed, setSandwichClosed] = useState(false);
   const [breadCut, setBreadCut] = useState(false);
   const [sprinkleCount, setSprinkleCount] = useState(0);
   const [cutCount, setCutCount] = useState(0);
@@ -59,32 +53,35 @@ export default function KitchenGame() {
   const [sprinkleParticles, setSprinkleParticles] = useState<
     { id: number; x: number; y: number }[]
   >([]);
-  const [dragging, setDragging] = useState<{
-    emoji: string;
-    x: number;
-    y: number;
-    originX: number;
-    originY: number;
-  } | null>(null);
-  const [dragReturning, setDragReturning] = useState(false);
+  const [flying, setFlying] = useState<Flying | null>(null);
 
-  const bowlRef = useRef<HTMLDivElement>(null);
-  const plateRef = useRef<HTMLDivElement>(null);
-  const sandwichRef = useRef<HTMLDivElement>(null);
-  const breadRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null);
   const stirRef = useRef<HTMLDivElement>(null);
-  const zoneRefs = useRef<Record<TargetZone, HTMLDivElement | null>>({
-    bowl: null,
-    plate: null,
-    sandwich: null,
-    bread: null,
-  });
   const stirAngleRef = useRef(0);
   const stirTotalRef = useRef(0);
   const stirStartRef = useRef<number | null>(null);
   const cutStartRef = useRef<Point | null>(null);
   const cutActiveRef = useRef(false);
   const particleIdRef = useRef(0);
+  const busyRef = useRef(false);
+  const uiTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stirQuietTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearStirQuietTimer = useCallback(() => {
+    if (stirQuietTimerRef.current) {
+      clearTimeout(stirQuietTimerRef.current);
+      stirQuietTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleUiTimer = useCallback((fn: () => void, ms: number) => {
+    const timer = setTimeout(() => {
+      fn();
+      uiTimersRef.current = uiTimersRef.current.filter((t) => t !== timer);
+    }, ms);
+    uiTimersRef.current.push(timer);
+    return timer;
+  }, []);
 
   const currentStep: KitchenStep | null =
     dish && screen === "cooking" ? dish.steps[stepIndex] : null;
@@ -94,19 +91,21 @@ export default function KitchenGame() {
     setBowlItems([]);
     setPlateReady(false);
     setSandwichLayers([]);
+    setSandwichClosed(false);
     setBreadCut(false);
     setSprinkleCount(0);
     setCutCount(0);
     setCutLines([]);
     setSprinkleParticles([]);
-    setDragging(null);
-    setDragReturning(false);
+    setFlying(null);
+    busyRef.current = false;
     stirAngleRef.current = 0;
     stirTotalRef.current = 0;
     stirStartRef.current = null;
+    clearStirQuietTimer();
     cutStartRef.current = null;
     cutActiveRef.current = false;
-  }, []);
+  }, [clearStirQuietTimer]);
 
   const selectDish = useCallback(
     (selected: Dish) => {
@@ -136,90 +135,58 @@ export default function KitchenGame() {
     stirAngleRef.current = 0;
     stirTotalRef.current = 0;
     stirStartRef.current = null;
-  }, [dish, stepIndex]);
+    clearStirQuietTimer();
+  }, [dish, stepIndex, clearStirQuietTimer]);
 
-  const applyStepVisual = useCallback(
-    (step: KitchenStep) => {
-      if (step.id === "salad-lettuce") {
-        setBowlItems((items) => [...items, "🥬"]);
-      } else if (step.id === "salad-tomato") {
-        setBowlItems((items) => [...items, "🍅"]);
-      } else if (step.id === "salad-serve") {
-        setPlateReady(true);
-        setBowlItems([]);
-      } else if (step.id === "sandwich-ham") {
-        setSandwichLayers((layers) => [...layers, "🥓"]);
-      } else if (step.id === "sandwich-cheese") {
-        setSandwichLayers((layers) => [...layers, "🧀"]);
-      } else if (step.id === "sandwich-cut") {
-        setBreadCut(true);
-      }
-    },
-    [],
-  );
+  const applyStepVisual = useCallback((step: KitchenStep) => {
+    if (step.id === "salad-lettuce") {
+      setBowlItems((items) => [...items, "🥬"]);
+    } else if (step.id === "salad-tomato") {
+      setBowlItems((items) => [...items, "🍅"]);
+    } else if (step.id === "salad-serve") {
+      setPlateReady(true);
+      setBowlItems([]);
+    } else if (step.id === "sandwich-ham") {
+      setSandwichLayers((layers) => [...layers, "🥓"]);
+    } else if (step.id === "sandwich-cheese") {
+      setSandwichLayers((layers) => [...layers, "🧀"]);
+    } else if (step.id === "sandwich-tap") {
+      setSandwichClosed(true);
+    } else if (step.id === "sandwich-cut") {
+      setBreadCut(true);
+    }
+  }, []);
 
-  const handleDragComplete = useCallback(
-    (step: KitchenStep) => {
-      playSound("drop");
-      applyStepVisual(step);
-      completeStep();
-    },
-    [applyStepVisual, completeStep],
-  );
-
-  const startDrag = useCallback(
-    (
-      e: ReactPointerEvent,
-      emoji: string,
-      originX: number,
-      originY: number,
-    ) => {
-      if (!currentStep || currentStep.gesture !== "drag") {
+  // Tap-place: el ingrediente vuela al objeto central y el paso avanza al aterrizar.
+  const handleTapPlace = useCallback(
+    (e: ReactPointerEvent, step: KitchenStep) => {
+      if (busyRef.current) {
         return;
       }
       unlockAudio();
-      e.currentTarget.setPointerCapture(e.pointerId);
-      setDragReturning(false);
-      setDragging({
-        emoji,
-        x: e.clientX,
-        y: e.clientY,
-        originX,
-        originY,
+      busyRef.current = true;
+      const source = centerOf(e.currentTarget.getBoundingClientRect());
+      const targetEl = targetRef.current;
+      const target = targetEl
+        ? centerOf(targetEl.getBoundingClientRect())
+        : { x: source.x, y: source.y - 160 };
+      playSound("tap");
+      setFlying({
+        emoji: step.ingredientEmoji,
+        x: source.x,
+        y: source.y,
+        dx: target.x - source.x,
+        dy: target.y - source.y,
       });
+      scheduleUiTimer(() => {
+        setFlying(null);
+        busyRef.current = false;
+        playSound("drop");
+        applyStepVisual(step);
+        completeStep();
+      }, FLY_DURATION_MS);
     },
-    [currentStep],
-  );
-
-  const moveDrag = useCallback(
-    (e: ReactPointerEvent) => {
-      if (!dragging) {
-        return;
-      }
-      setDragging((d) =>
-        d ? { ...d, x: e.clientX, y: e.clientY } : null,
-      );
-    },
-    [dragging],
-  );
-
-  const endDrag = useCallback(
-    (step: KitchenStep) => {
-      if (!dragging) {
-        return;
-      }
-      const point = { x: dragging.x, y: dragging.y };
-      const rect = getZoneRect(step.targetZone, zoneRefs.current);
-      if (rect && isPointInRect(point, rect)) {
-        setDragging(null);
-        handleDragComplete(step);
-        return;
-      }
-      setDragReturning(true);
-      setDragging(null);
-      setTimeout(() => setDragReturning(false), 400);
-    },
-    [dragging, handleDragComplete],
+    [applyStepVisual, completeStep, scheduleUiTimer],
   );
 
   const handleStirPointer = useCallback(
@@ -240,6 +207,13 @@ export default function KitchenGame() {
       if (stirStartRef.current === null) {
         stirStartRef.current = Date.now();
         stirAngleRef.current = angle;
+        clearStirQuietTimer();
+        stirQuietTimerRef.current = setTimeout(() => {
+          stirQuietTimerRef.current = null;
+          stirTotalRef.current = 0;
+          stirStartRef.current = null;
+          completeStep();
+        }, STIR_TIME_MS);
         return;
       }
 
@@ -261,10 +235,11 @@ export default function KitchenGame() {
       ) {
         stirTotalRef.current = 0;
         stirStartRef.current = null;
+        clearStirQuietTimer();
         completeStep();
       }
     },
-    [currentStep, completeStep],
+    [currentStep, completeStep, clearStirQuietTimer],
   );
 
   const handleSprinkle = useCallback(
@@ -279,7 +254,7 @@ export default function KitchenGame() {
       const y = ((e.clientY - rect.top) / rect.height) * 100;
       const id = particleIdRef.current++;
       setSprinkleParticles((p) => [...p, { id, x, y }]);
-      setTimeout(() => {
+      scheduleUiTimer(() => {
         setSprinkleParticles((p) => p.filter((item) => item.id !== id));
       }, 700);
       const next = sprinkleCount + 1;
@@ -288,7 +263,7 @@ export default function KitchenGame() {
         completeStep();
       }
     },
-    [currentStep, sprinkleCount, completeStep],
+    [currentStep, sprinkleCount, completeStep, scheduleUiTimer],
   );
 
   const handleCutPointerDown = useCallback(
@@ -304,39 +279,34 @@ export default function KitchenGame() {
     [currentStep],
   );
 
-  const handleCutPointerMove = useCallback((e: ReactPointerEvent) => {
-    if (!cutActiveRef.current || !cutStartRef.current) {
-      return;
-    }
-    const dx = e.clientX - cutStartRef.current.x;
-    if (Math.abs(dx) < CUT_SWIPE_MIN_PX) {
-      return;
-    }
-    cutActiveRef.current = false;
-    cutStartRef.current = null;
-    playSound("chop");
-    const linePct = 20 + cutCount * 25;
-    setCutLines((lines) => [...lines, linePct]);
-    const next = cutCount + 1;
-    setCutCount(next);
-    if (next >= CUT_SWIPES_REQUIRED) {
-      completeStep();
-    }
-  }, [cutCount, completeStep]);
+  const handleCutPointerMove = useCallback(
+    (e: ReactPointerEvent) => {
+      if (!cutActiveRef.current || !cutStartRef.current) {
+        return;
+      }
+      const dx = e.clientX - cutStartRef.current.x;
+      if (Math.abs(dx) < CUT_SWIPE_MIN_PX) {
+        return;
+      }
+      cutActiveRef.current = false;
+      cutStartRef.current = null;
+      playSound("chop");
+      const linePct = 25 + cutCount * 25;
+      setCutLines((lines) => [...lines, linePct]);
+      const next = cutCount + 1;
+      setCutCount(next);
+      if (next >= CUT_SWIPES_REQUIRED) {
+        setBreadCut(true);
+        completeStep();
+      }
+    },
+    [cutCount, completeStep],
+  );
 
   const handleCutPointerUp = useCallback(() => {
     cutActiveRef.current = false;
     cutStartRef.current = null;
   }, []);
-
-  const handleTap = useCallback(() => {
-    if (!currentStep || currentStep.gesture !== "tap") {
-      return;
-    }
-    unlockAudio();
-    playSound("tap");
-    completeStep();
-  }, [currentStep, completeStep]);
 
   const cookAnother = useCallback(() => {
     playSound("tap");
@@ -346,46 +316,179 @@ export default function KitchenGame() {
   }, [resetCookingState]);
 
   useEffect(() => {
-    zoneRefs.current.bowl = bowlRef.current;
-    zoneRefs.current.plate = plateRef.current;
-    zoneRefs.current.sandwich = sandwichRef.current;
-    zoneRefs.current.bread = breadRef.current;
-  });
+    return () => {
+      uiTimersRef.current.forEach(clearTimeout);
+      uiTimersRef.current = [];
+      clearStirQuietTimer();
+    };
+  }, [clearStirQuietTimer]);
 
-  const renderIngredientSource = (
-    emoji: string,
-    step: KitchenStep,
-    className: string,
-  ) => {
-    const show =
-      step.gesture === "drag" && step.ingredientEmoji === emoji;
-    if (!show) {
+  const renderIngredientTray = (step: KitchenStep) => {
+    if (step.gesture !== "tap-place" && step.gesture !== "tap") {
+      return null;
+    }
+    if (step.scene === "pour") {
       return null;
     }
     return (
-      <button
-        type="button"
-        className={`kitchen-ingredient ${className} ${
-          dragReturning ? "kitchen-ingredient--return" : ""
-        }`}
-        aria-label={step.shortLabel}
-        onPointerDown={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          startDrag(
-            e,
-            emoji,
-            rect.left + rect.width / 2,
-            rect.top + rect.height / 2,
-          );
-        }}
-        onPointerMove={moveDrag}
-        onPointerUp={() => endDrag(step)}
-        onPointerCancel={() => endDrag(step)}
-      >
-        <span aria-hidden="true">{emoji}</span>
-      </button>
+      <div className="kitchen-tray">
+        <button
+          type="button"
+          className="kitchen-ingredient"
+          aria-label={step.shortLabel}
+          onPointerDown={(e) => handleTapPlace(e, step)}
+        >
+          <span className="kitchen-ingredient-emoji" aria-hidden="true">
+            {step.ingredientEmoji}
+          </span>
+          <span className="kitchen-hand" aria-hidden="true">
+            👆
+          </span>
+        </button>
+      </div>
     );
   };
+
+  const renderBowl = (step: KitchenStep, tappable: boolean) => (
+    <div
+      ref={tappable ? undefined : targetRef}
+      className={`kitchen-object kitchen-object--bowl ${
+        step.gesture === "stir" ? "kitchen-object--stir" : ""
+      }`}
+      onPointerMove={step.gesture === "stir" ? handleStirPointer : undefined}
+      onPointerDown={
+        tappable ? (e) => handleTapPlace(e, step) : undefined
+      }
+      role={tappable ? "button" : undefined}
+      aria-label={tappable ? step.shortLabel : undefined}
+    >
+      <div ref={stirRef} className="kitchen-object-inner">
+        <span className="kitchen-object-emoji" aria-hidden="true">
+          🥣
+        </span>
+        {bowlItems.length > 0 && (
+          <span className="kitchen-bowl-items" aria-hidden="true">
+            {bowlItems.map((item, i) => (
+              <span key={i}>{item}</span>
+            ))}
+          </span>
+        )}
+        {step.gesture === "stir" && (
+          <span className="kitchen-hint kitchen-hint--stir" aria-hidden="true">
+            🌀
+          </span>
+        )}
+        {tappable && (
+          <span className="kitchen-hint kitchen-hint--tap" aria-hidden="true">
+            👆
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderPlate = (step: KitchenStep, isTarget: boolean) => (
+    <div
+      ref={isTarget ? targetRef : undefined}
+      className="kitchen-object kitchen-object--plate"
+      onPointerDown={
+        step.gesture === "sprinkle" ? handleSprinkle : undefined
+      }
+    >
+      <div className="kitchen-object-inner">
+        <span className="kitchen-object-emoji" aria-hidden="true">
+          {plateReady ? "🥗" : "🍽️"}
+        </span>
+        {sprinkleParticles.map((p) => (
+          <span
+            key={p.id}
+            className="kitchen-sprinkle-particle"
+            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+            aria-hidden="true"
+          >
+            ✨
+          </span>
+        ))}
+        {step.gesture === "sprinkle" && (
+          <span className="kitchen-hint kitchen-hint--shaker" aria-hidden="true">
+            🧂
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderScene = (step: KitchenStep) => {
+    if (step.scene === "bowl") {
+      return renderBowl(step, false);
+    }
+    if (step.scene === "pour") {
+      return (
+        <div className="kitchen-scene-stack">
+          {renderBowl(step, true)}
+          {renderPlate(step, true)}
+        </div>
+      );
+    }
+    if (step.scene === "plate") {
+      return renderPlate(step, true);
+    }
+    if (step.scene === "bread") {
+      return (
+        <div
+          className="kitchen-object kitchen-object--bread"
+          onPointerDown={handleCutPointerDown}
+          onPointerMove={handleCutPointerMove}
+          onPointerUp={handleCutPointerUp}
+          onPointerCancel={handleCutPointerUp}
+        >
+          <div className="kitchen-object-inner">
+            <span
+              className={`kitchen-object-emoji ${
+                breadCut ? "kitchen-object-emoji--cut" : ""
+              }`}
+              aria-hidden="true"
+            >
+              🍞
+            </span>
+            {cutLines.map((line, i) => (
+              <span
+                key={i}
+                className="kitchen-cut-line"
+                style={{ top: `${line}%` }}
+                aria-hidden="true"
+              />
+            ))}
+            <span className="kitchen-hint kitchen-hint--swipe" aria-hidden="true">
+              👉
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div ref={targetRef} className="kitchen-object kitchen-object--sandwich">
+        <div className="kitchen-object-inner">
+          <span className="kitchen-sandwich-stack" aria-hidden="true">
+            {sandwichClosed && <span>🍞</span>}
+            {[...sandwichLayers].reverse().map((layer, i) => (
+              <span key={i}>{layer}</span>
+            ))}
+            <span>🍞</span>
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const flyStyle: CSSProperties | undefined = flying
+    ? ({
+        left: flying.x,
+        top: flying.y,
+        "--kitchen-fly-dx": `${flying.dx}px`,
+        "--kitchen-fly-dy": `${flying.dy}px`,
+      } as CSSProperties)
+    : undefined;
 
   return (
     <div className="app-container">
@@ -425,221 +528,28 @@ export default function KitchenGame() {
         {screen === "cooking" && dish && currentStep && (
           <div className="kitchen-cooking">
             <div
-              className="kitchen-steps"
-              role="list"
-              aria-label="Pasos de la receta"
+              className="kitchen-progress"
+              role="progressbar"
+              aria-valuemin={1}
+              aria-valuemax={dish.steps.length}
+              aria-valuenow={stepIndex + 1}
+              aria-label={`Paso ${stepIndex + 1} de ${dish.steps.length}`}
             >
-              {dish.steps.map((step, index) => (
-                <div
-                  key={step.id}
-                  role="listitem"
-                  className={`kitchen-step-dot ${
-                    index < stepIndex ? "kitchen-step-dot--done" : ""
-                  } ${index === stepIndex ? "kitchen-step-dot--active" : ""}`}
-                  aria-hidden="true"
-                >
-                  <span>{step.actionIcon}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="kitchen-action-hint" aria-live="polite">
-              <span className="kitchen-action-icon" aria-hidden="true">
-                {currentStep.actionIcon}
-              </span>
-              <span className="kitchen-action-label">
-                {currentStep.shortLabel}
-              </span>
-            </div>
-
-            <div className="kitchen-workspace">
-              {dish.id === "salad" && (
-                <>
-                  <div
-                    ref={bowlRef}
-                    className={`kitchen-zone kitchen-zone--bowl ${
-                      currentStep.targetZone === "bowl" &&
-                      currentStep.gesture !== "drag"
-                        ? "kitchen-zone--highlight"
-                        : ""
-                    }`}
-                    onPointerMove={
-                      currentStep.gesture === "stir"
-                        ? handleStirPointer
-                        : undefined
-                    }
-                  >
-                    <div ref={stirRef} className="kitchen-bowl-inner">
-                      <span className="kitchen-bowl-emoji" aria-hidden="true">
-                        🥣
-                      </span>
-                      <div className="kitchen-bowl-items">
-                        {bowlItems.map((item, i) => (
-                          <span key={i} aria-hidden="true">{item}</span>
-                        ))}
-                      </div>
-                      {currentStep.gesture === "stir" && (
-                        <span
-                          className="kitchen-stir-hint"
-                          aria-hidden="true"
-                        >
-                          🔄
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    ref={plateRef}
-                    className={`kitchen-zone kitchen-zone--plate ${
-                      currentStep.targetZone === "plate"
-                        ? "kitchen-zone--highlight"
-                        : ""
-                    }`}
-                    onPointerDown={
-                      currentStep.gesture === "sprinkle"
-                        ? handleSprinkle
-                        : undefined
-                    }
-                  >
-                    <span className="kitchen-plate-emoji" aria-hidden="true">
-                      {plateReady ? "🥗" : "🍽️"}
-                    </span>
-                    {sprinkleParticles.map((p) => (
-                      <span
-                        key={p.id}
-                        className="kitchen-sprinkle-particle"
-                        style={{ left: `${p.x}%`, top: `${p.y}%` }}
-                        aria-hidden="true"
-                      >
-                        ✨
-                      </span>
-                    ))}
-                    {currentStep.gesture === "sprinkle" && (
-                      <span className="kitchen-shaker" aria-hidden="true">
-                        🧂
-                      </span>
-                    )}
-                  </div>
-
-                  {renderIngredientSource(
-                    "🥬",
-                    currentStep,
-                    "kitchen-ingredient--lettuce",
-                  )}
-                  {renderIngredientSource(
-                    "🍅",
-                    currentStep,
-                    "kitchen-ingredient--tomato",
-                  )}
-                  {currentStep.id === "salad-serve" && (
-                    <button
-                      type="button"
-                      className={`kitchen-ingredient kitchen-ingredient--salad ${
-                        dragReturning ? "kitchen-ingredient--return" : ""
-                      }`}
-                      aria-label={currentStep.shortLabel}
-                      onPointerDown={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        startDrag(
-                          e,
-                          "🥗",
-                          rect.left + rect.width / 2,
-                          rect.top + rect.height / 2,
-                        );
-                      }}
-                      onPointerMove={moveDrag}
-                      onPointerUp={() => endDrag(currentStep)}
-                      onPointerCancel={() => endDrag(currentStep)}
-                    >
-                      <span aria-hidden="true">🥗</span>
-                    </button>
-                  )}
-                </>
-              )}
-
-              {dish.id === "sandwich" && (
-                <>
-                  <div
-                    ref={breadRef}
-                    className={`kitchen-zone kitchen-zone--bread ${
-                      currentStep.targetZone === "bread"
-                        ? "kitchen-zone--highlight"
-                        : ""
-                    }`}
-                    onPointerDown={handleCutPointerDown}
-                    onPointerMove={handleCutPointerMove}
-                    onPointerUp={handleCutPointerUp}
-                    onPointerCancel={handleCutPointerUp}
-                  >
-                    <span
-                      className={`kitchen-bread-emoji ${
-                        breadCut ? "kitchen-bread-emoji--cut" : ""
-                      }`}
-                      aria-hidden="true"
-                    >
-                      🍞
-                    </span>
-                    {cutLines.map((line, i) => (
-                      <span
-                        key={i}
-                        className="kitchen-cut-line"
-                        style={{ top: `${line}%` }}
-                        aria-hidden="true"
-                      />
-                    ))}
-                  </div>
-
-                  <div
-                    ref={sandwichRef}
-                    className={`kitchen-zone kitchen-zone--sandwich ${
-                      currentStep.targetZone === "sandwich"
-                        ? "kitchen-zone--highlight"
-                        : ""
-                    }`}
-                    onClick={
-                      currentStep.gesture === "tap" ? handleTap : undefined
-                    }
-                  >
-                    <div className="kitchen-sandwich-stack">
-                      <span aria-hidden="true">🍞</span>
-                      {sandwichLayers.map((layer, i) => (
-                        <span key={i} aria-hidden="true">{layer}</span>
-                      ))}
-                      {currentStep.gesture === "tap" && (
-                        <span className="kitchen-tap-hint" aria-hidden="true">
-                          🍞
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {renderIngredientSource(
-                    "🥓",
-                    currentStep,
-                    "kitchen-ingredient--ham",
-                  )}
-                  {renderIngredientSource(
-                    "🧀",
-                    currentStep,
-                    "kitchen-ingredient--cheese",
-                  )}
-                </>
-              )}
-            </div>
-
-            {dragging && (
-              <div
-                className="kitchen-drag-ghost"
+              <span
+                className="kitchen-progress-fill"
                 style={{
-                  left: dragging.x,
-                  top: dragging.y,
+                  width: `${((stepIndex + 1) / dish.steps.length) * 100}%`,
                 }}
-                aria-hidden="true"
-              >
-                {dragging.emoji}
-              </div>
-            )}
+              />
+            </div>
+
+            <p className="kitchen-action-label" aria-live="polite">
+              {currentStep.shortLabel}
+            </p>
+
+            <div className="kitchen-scene">{renderScene(currentStep)}</div>
+
+            {renderIngredientTray(currentStep)}
           </div>
         )}
 
@@ -663,6 +573,12 @@ export default function KitchenGame() {
           </div>
         )}
       </div>
+
+      {flying && (
+        <span className="kitchen-fly" style={flyStyle} aria-hidden="true">
+          {flying.emoji}
+        </span>
+      )}
     </div>
   );
 }
